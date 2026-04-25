@@ -1,9 +1,15 @@
 
 services:
+
   postgres:
-    image: postgres
-    container_name: postgres-movie
+    image: postgres:15-alpine
+    container_name: postgres_movie
     env_file:
       - .env
     ports:
-    - "5433:5432"
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

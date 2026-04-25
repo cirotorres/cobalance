@@ -1,8 +1,11 @@
-from sqlmodel import SQLModel, create_engine, Session
-from core.config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+# from sqlmodel import create_engine, Session
+from sqlmodel import Session
+
+from sqlalchemy import create_engine
+from core.config import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, POSTGRES_HOST, POSTGRES_PORT
 
 
-DATABASE_URL=f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@localhost:5433/{POSTGRES_DB}"
+DATABASE_URL=f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
 engine = create_engine(DATABASE_URL, echo=True)
 
