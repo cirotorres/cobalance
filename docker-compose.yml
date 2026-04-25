@@ -1,0 +1,9 @@
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres-movie
+    env_file:
+      - .env
+    ports:
+    - "5433:5432"
