@@ -1,17 +1,17 @@
 import uvicorn
-from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from routes import favorites, auth, search, users
-from db.init_db import create_db_and_tables
+# from db.init_db import create_db_and_tables
+# from contextlib import asynccontextmanager
+# import models.teste
 
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     create_db_and_tables()
+#     yield
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    create_db_and_tables()
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
+# app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 # app.include_router(auth.router, prefix="/auth")
 app.include_router(search.router, prefix="/search")

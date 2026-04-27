@@ -1,6 +1,3 @@
-
-
-
 from schemas.user import UserResponse, UserCreate
 from db.database import get_session
 from models.user import User
@@ -12,14 +9,15 @@ router = APIRouter()
 @router.post("/", response_model=UserResponse)
 def create_user(user_data: UserCreate, db: Session = Depends(get_session)):
 
-    exist_user = db.query(User).filter_by(email = user_data.email).first()
+    exist_user = db.query(User).filter(User.email == user_data.email).first()
     if exist_user:
         raise HTTPException(status_code=400,detail="Já existe.")
 
     new_user = User(
         email=user_data.email,
         password=user_data.password,
-        is_admin=user_data.is_admin
+        is_admin=user_data.is_admin,
+        age=user_data.age
     )
 
     db.add(new_user)
@@ -35,7 +33,7 @@ def list_users(db: Session = Depends(get_session)):
 
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, db: Session = Depends(get_session)):
-    get_u = db.query(User).filter_by(id = user_id).first()
+    get_u = db.query(User).filter(User.id == user_id).first()
     if not get_u:
         raise HTTPException(status_code=404, detail="Usuário inexistente")
     return get_u
@@ -43,7 +41,7 @@ def get_user(user_id: int, db: Session = Depends(get_session)):
 
 @router.delete("/{user_id}")
 def delete_user(user_id: int, db: Session = Depends(get_session)):
-    get_u = db.query(User).filter_by(id = user_id).first()
+    get_u = db.query(User).filter(User.id == user_id).first()
     if get_u:
         db.delete(get_u)
         db.commit()

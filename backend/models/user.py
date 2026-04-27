@@ -8,5 +8,6 @@ class User(Base):
     email = Column(String, unique=True)
     password = Column(String)
     is_admin = Column(Boolean)
+    age = Column(Integer, nullable=True)
 
 
