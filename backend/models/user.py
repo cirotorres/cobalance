@@ -18,4 +18,5 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
+    transactions = relationship("Transaction", back_populates="user")
 

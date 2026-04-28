@@ -1,3 +1,7 @@
+include .env
+export $(shell sed 's/=.*//' .env)
+
+
 .PHONY: help rebuild up down logs shell-backend shell-db shell-frontend migrate fresh
 
 help:
@@ -36,7 +40,7 @@ shell-frontend:
 	docker-compose exec frontend sh
 
 shell-db:
-	docker-compose exec postgres psql -U ciro -d bancomovie
+	docker-compose exec postgres psql -U $$POSTGRES_USER -d $$POSTGRES_DB
 
 migrate:
 	docker-compose exec backend alembic upgrade head
