@@ -1,14 +1,14 @@
 from pydantic import BaseModel, ConfigDict
 
 
-class FavoriteCreate(BaseModel):
+class ParticipantCreate(BaseModel):
     user_id: int
-    title: str
+    name: str
 
 
-class FavoriteResponse(BaseModel):
+class ParticipantResponse(BaseModel):
     id: int
     user_id: int
-    title: str
+    name: str
 
     model_config = ConfigDict(from_attributes=True)

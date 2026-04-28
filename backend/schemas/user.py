@@ -3,6 +3,7 @@ from pydantic import BaseModel, ConfigDict
 
 class UserCreate(BaseModel):
     email: str
+    name: str
     password: str
     is_admin: bool = False
     age: int | None
@@ -11,6 +12,7 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id: int
     email: str
+    name: str
     is_admin: bool
     age: int | None
 

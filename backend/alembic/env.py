@@ -9,7 +9,7 @@ from core.config import DATABASE_URL
 
 from db.database import Base
 from models.user import User
-from models.favorite import Favorite
+from models.participant import Participant
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

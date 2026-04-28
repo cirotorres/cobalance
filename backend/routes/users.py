@@ -18,9 +18,10 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_session)):
 
     new_user = User(
         email=user_data.email,
+        name=user_data.name,
         password_hash=hashed_password,
         is_admin=user_data.is_admin,
-        age=user_data.age
+        age=user_data.age,
     )
 
     db.add(new_user)
