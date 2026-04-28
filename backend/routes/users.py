@@ -3,6 +3,7 @@ from db.database import get_session
 from models.user import User
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException
+from core.security import hash_password
 
 router = APIRouter()
 
@@ -12,10 +13,12 @@ def create_user(user_data: UserCreate, db: Session = Depends(get_session)):
     exist_user = db.query(User).filter(User.email == user_data.email).first()
     if exist_user:
         raise HTTPException(status_code=400,detail="Já existe.")
+    
+    hashed_password = hash_password(user_data.password)
 
     new_user = User(
         email=user_data.email,
-        password=user_data.password,
+        password_hash=hashed_password,
         is_admin=user_data.is_admin,
         age=user_data.age
     )

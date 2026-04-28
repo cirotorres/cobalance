@@ -6,7 +6,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     email = Column(String, unique=True)
-    password = Column(String)
+    password_hash = Column(String, nullable=False)
     is_admin = Column(Boolean)
     age = Column(Integer, nullable=True)
 

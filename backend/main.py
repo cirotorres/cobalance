@@ -13,7 +13,7 @@ from routes import favorites, auth, search, users
 # app = FastAPI(lifespan=lifespan)
 app = FastAPI()
 
-# app.include_router(auth.router, prefix="/auth")
+app.include_router(auth.router, prefix="/auth")
 app.include_router(search.router, prefix="/search")
 app.include_router(users.router, prefix="/users", tags=["Users"])
 app.include_router(favorites.router, prefix="/favorites", tags=["Favorites"])
