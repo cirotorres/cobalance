@@ -5,8 +5,8 @@ from datetime import datetime, timezone
 from db.database import Base
 
 
-class Transaction(Base):
-    __tablename__ = "transactions"
+class FinancialEntry(Base):
+    __tablename__ = "financial_entries"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -16,10 +16,10 @@ class Transaction(Base):
     description = Column(String(255), nullable=False)
     source = Column(String(50), nullable=False)
     is_reviewed = Column(Boolean, default=False, nullable=False)
-    installment_number = Column(Integer, nullable=True)
-    installment_total = Column(Integer, nullable=True)
-    created_at = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
-    updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime(timezone.utc), nullable=False)
+    installment_number = Column(Integer, nullable=False)
+    installment_total = Column(Integer, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(), onupdate=lambda: datetime.now(), nullable=False)
     
-    user = relationship("User", back_populates="transactions")
-    participant = relationship("Participant", back_populates="transactions")
+    user = relationship("User", back_populates="financial_entries")
+    participant = relationship("Participant", back_populates="financial_entries")

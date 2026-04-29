@@ -1,20 +1,20 @@
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-class TransactionCreate(BaseModel):
+class FinancialEntryCreate(BaseModel):
     user_id: int
     participant_id: int | None = None
     amount: Decimal
     transaction_date: date
     description: str
     source: str
-    is_reviewed: bool = False
-    installment_number: int | None = None
-    installment_total: int | None = None
+    is_reviewed: bool = True
+    installment_number: int = 1 
+    installment_total: int = 1
 
-class TransactionResponse(BaseModel):
+class FinancialEntryResponse(BaseModel):
     id: int
     user_id: int
     participant_id: int | None
@@ -25,8 +25,8 @@ class TransactionResponse(BaseModel):
     is_reviewed: bool
     installment_number: int | None
     installment_total: int | None
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime = Field(default_factory=lambda: datetime.now())
+    updated_at: datetime = Field(default_factory=lambda: datetime.now())
 
     model_config = ConfigDict(from_attributes=True)
 

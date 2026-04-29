@@ -18,5 +18,5 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
-    transactions = relationship("Transaction", back_populates="user")
+    financial_entries = relationship("FinancialEntry", back_populates="user")
 
