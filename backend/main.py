@@ -13,6 +13,7 @@ from models.user import User
 #     yield
 
 # app = FastAPI(lifespan=lifespan)
+
 app = FastAPI()
 
 app.include_router(auth.router, prefix="/auth")

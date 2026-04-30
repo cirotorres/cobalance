@@ -1,16 +1,16 @@
-from datetime import datetime, date, timezone
+from datetime import datetime, date
 from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 class FinancialEntryCreate(BaseModel):
-    user_id: int
+    # user_id: int
     participant_id: int | None = None
     amount: Decimal
     transaction_date: date
     description: str
     source: str
-    is_reviewed: bool = True
+    is_reviewed: bool = False
     installment_number: int = 1 
     installment_total: int = 1
 

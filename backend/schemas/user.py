@@ -5,6 +5,7 @@ class UserCreate(BaseModel):
     email: str
     name: str
     password: str
+    # confirmpassword: str
     is_admin: bool = False
     age: int | None
 

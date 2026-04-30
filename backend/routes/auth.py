@@ -19,7 +19,10 @@ def login(login_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
     
     acess_token = create_acess_token(
-        {'sub': user.email}
+        {
+            'sub': user.email,
+            'id': user.id,
+        }
         )
 
     return {
@@ -32,5 +35,6 @@ def profile(
     current_user: User = Depends(get_current_user)
 ):
     return {
-        "email": current_user.email
+        "email": current_user.email,
+        "is_admin": current_user.is_admin
     }
