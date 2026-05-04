@@ -1,8 +1,9 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
-from schemas.financial_entries import FinancialEntryResponse, FinancialEntryCreate
+from services.import_csv_nu import import_financial_csv
+from schemas.financial_entries import FinancialEntryResponse, FinancialEntryCreate, FinancialEntryUpdate
 from db.database import get_session
 from core.security import get_current_user
 from models.financial_entries import FinancialEntry
@@ -85,6 +86,35 @@ def calculo_total(db: Session = Depends(get_session), current_user: User = Depen
 
     return total_amount
 
+@router.get("/summary/{participant_id}")
+def get_total_participant(participant_id: int, db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+
+    query = db.query(FinancialEntry)
+    participant = db.query(Participant)
+
+    if not current_user.is_admin:
+        participant = participant.filter(Participant.id == participant_id, Participant.user_id == current_user.id).first()
+        query = query.filter(FinancialEntry.user_id == current_user.id, FinancialEntry.participant_id == participant_id)
+
+    else:
+        participant = participant.filter(Participant.id == participant_id).first()
+    
+    if not participant:
+            raise HTTPException(status_code=404, detail="Participante não encontrado.")
+    
+    query = query.filter(FinancialEntry.participant_id == participant_id)
+
+    query_final = query.all()
+
+    total_amount = 0
+    for valor in query_final:
+        total_amount += valor.amount
+
+    return {
+    "participant_id": participant_id,
+    "name": participant.name,
+    "total_amount": total_amount
+    }
 
 @router.get("/financial-entries")
 def get_entries(
@@ -102,19 +132,25 @@ def get_entries(
 
     filter = apply_filters(query, current_user, participant_id, is_reviewed, source, own_user)
 
-    # if own_user == True:
-    #     query = query.filter(FinancialEntry.participant_id == None)
-
-    # if participant_id is not None:
-    #     query = query.filter(FinancialEntry.participant_id == participant_id)
-
-    # if is_reviewed is not None:
-    #     query = query.filter(FinancialEntry.is_reviewed == is_reviewed)
-
-    # if source is not None:
-    #     query = query.filter(FinancialEntry.source == source)
-
     return filter.all()
+
+
+@router.post("/import-csv")
+def import_csv(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+        total = import_financial_csv(
+        file.file,
+        db,
+        current_user.id
+    )
+
+        return {
+            "message": "Importação concluída",
+            "imported": total
+        }
 
 
 @router.get("/{financial_id}", response_model=FinancialEntryResponse)
@@ -125,11 +161,53 @@ def get_financial_entry(financial_id: int, db: Session = Depends(get_session)):
     return get_fin
 
 
-@router.delete("/{financial_id}")
-def delete_financial_entry(financial_id: int, db: Session = Depends(get_session)):
-    financial = db.query(FinancialEntry).filter(FinancialEntry.id == financial_id).first()
+@router.patch("/{financial_id}")
+def update_financial_entry(
+    financial_id: int,
+    financial_data: FinancialEntryUpdate,
+    db: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.is_admin:
+        financial = db.query(FinancialEntry).filter(
+            FinancialEntry.id == financial_id,
+        ).first()
+    else:
+        financial = db.query(FinancialEntry).filter(
+            FinancialEntry.id == financial_id,
+            FinancialEntry.user_id == current_user.id
+        ).first()
+
     if not financial:
-        raise HTTPException(status_code=404, detail="Finança não encontrada.")
+        raise HTTPException(
+            status_code=404,
+            detail="Lançamento não encontrado"
+        )
+    
+    update_data = financial_data.model_dump(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(financial, key, value)
+
+    db.commit()
+    db.refresh(financial)
+
+    return financial
+
+@router.delete("/{financial_id}")
+def delete_financial_entry(financial_id: int, db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    financial = db.query(FinancialEntry)
+
+    if current_user.is_admin:
+        financial = financial.filter(FinancialEntry.id == financial_id).first()
+    else:
+        financial = financial.filter(FinancialEntry.id == financial_id, FinancialEntry.user_id == current_user.id).first()
+
+    if not financial:
+        raise HTTPException(
+            status_code=404,
+            detail="Lançamento não encontrado"
+        )
     db.delete(financial)
     db.commit()
 

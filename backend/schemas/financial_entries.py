@@ -1,5 +1,6 @@
 from datetime import datetime, date
 from decimal import Decimal
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -33,3 +34,9 @@ class FinancialEntryResponse(BaseModel):
 class TransactionUpdate(BaseModel):
     participant_id: int | None = None
     is_reviewed: bool | None = None
+
+class FinancialEntryUpdate(BaseModel):
+    amount: Optional[float] = None
+    description: Optional[str] = None
+    source: Optional[str] = None
+    is_reviewed: Optional[bool] = None
