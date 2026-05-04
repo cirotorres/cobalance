@@ -2,7 +2,7 @@ from datetime import datetime, date
 from decimal import Decimal
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 class FinancialEntryCreate(BaseModel):
     # user_id: int
@@ -10,7 +10,7 @@ class FinancialEntryCreate(BaseModel):
     amount: Decimal
     transaction_date: date
     description: str
-    source: str
+    source: str = "web"
     is_reviewed: bool = False
     installment_number: int = 1 
     installment_total: int = 1
@@ -26,8 +26,8 @@ class FinancialEntryResponse(BaseModel):
     is_reviewed: bool
     installment_number: int | None
     installment_total: int | None
-    created_at: datetime = Field(default_factory=lambda: datetime.now())
-    updated_at: datetime = Field(default_factory=lambda: datetime.now())
+    created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
