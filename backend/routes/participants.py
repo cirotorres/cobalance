@@ -15,6 +15,7 @@ def create_participant(
     current_user: User = Depends(get_current_user)
 ):
     user = db.query(User).filter(User.id == participant_data.user_id).first()
+
     exist_participant = db.query(Participant).filter(
         Participant.user_id == participant_data.user_id,
         Participant.name == participant_data.name,

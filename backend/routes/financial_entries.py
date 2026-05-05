@@ -1,9 +1,14 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
+from helpers.apply_filters import apply_filters
+from helpers.create_entries_llm import create_entries_from_llm_items
+from helpers.find_participant import find_participant_by_name
+from services.llm_service import interpretar_comando_financeiro
 from services.import_csv_nu import import_financial_csv
-from schemas.financial_entries import FinancialEntryResponse, FinancialEntryCreate, FinancialEntryUpdate
+from schemas.financial_entries import FinancialEntryAICreate, FinancialEntryResponse, FinancialEntryCreate, FinancialEntryUpdate
 from db.database import get_session
 from core.security import get_current_user
 from models.financial_entries import FinancialEntry
@@ -12,24 +17,6 @@ from models.participant import Participant
 
 
 router = APIRouter()
-
-
-def apply_filters(query, current_user, participant_id, is_reviewed, source, own_user):
-    query = query.filter(FinancialEntry.user_id == current_user.id)
-
-    if own_user:
-        query = query.filter(FinancialEntry.participant_id == None)
-
-    if participant_id is not None:
-        query = query.filter(FinancialEntry.participant_id == participant_id)
-
-    if is_reviewed is not None:
-        query = query.filter(FinancialEntry.is_reviewed == is_reviewed)
-
-    if source is not None:
-        query = query.filter(FinancialEntry.source == source)
-
-    return query
 
 
 @router.post("/", response_model=FinancialEntryResponse)
@@ -64,6 +51,93 @@ def create_financial_entry(
     db.refresh(new_financial)
 
     return new_financial
+
+
+# @router.post("/from-ia", response_model=list[FinancialEntryResponse])
+# def create_financial_entries_from_ia(
+#     data: FinancialEntryAICreate,
+#     db: Session = Depends(get_session),
+#     current_user: User = Depends(get_current_user)
+# ):
+#     llm_entries = chamada_llm(data.text)
+
+#     if isinstance(llm_entries, dict) and llm_entries.get("error"):
+#         raise HTTPException(status_code=400, detail=llm_entries)
+
+#     try:
+#         return create_entries_from_llm_items(llm_entries, db, current_user)
+#     except ValidationError as error:
+#         raise HTTPException(status_code=422, detail=error.errors())
+
+
+@router.post("/assistant")
+def financial_assistant(
+    data: FinancialEntryAICreate,
+    db: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    command = interpretar_comando_financeiro(data.text)
+
+    if isinstance(command, dict) and command.get("error"):
+        raise HTTPException(status_code=400, detail=command)
+
+    intent = command.get("intent")
+
+    if intent == "create_financial_entries":
+        entries = command.get("entries", [])
+
+        if not entries:
+            raise HTTPException(
+                status_code=400,
+                detail="Nenhum lançamento financeiro foi identificado."
+            )
+
+        try:
+            created_entries = create_entries_from_llm_items(entries, db, current_user)
+        except ValidationError as error:
+            raise HTTPException(status_code=422, detail=error.errors())
+
+        return {
+            "intent": intent,
+            "message": f"{len(created_entries)} lançamento(s) criado(s) com sucesso.",
+            "entries": [
+                FinancialEntryResponse.model_validate(entry).model_dump(mode="json")
+                for entry in created_entries
+            ],
+        }
+
+    if intent == "get_participant_total":
+        participant_name = command.get("participant_name")
+
+        if not participant_name:
+            raise HTTPException(
+                status_code=400,
+                detail="Nenhum participante foi identificado."
+            )
+
+        participant = find_participant_by_name(db, current_user, participant_name)
+        query = db.query(FinancialEntry).filter(
+            FinancialEntry.user_id == current_user.id,
+            FinancialEntry.participant_id == participant.id
+        )
+
+        total_amount = 0
+        for entry in query.all():
+            total_amount += entry.amount
+
+        return {
+            "intent": intent,
+            "participant_id": participant.id,
+            "participant_name": participant.name,
+            "total_amount": total_amount,
+            "message": f"Total de {participant.name}: {total_amount}",
+        }
+
+    raise HTTPException(
+        status_code=400,
+        detail=command.get("message", "Não consegui identificar uma ação suportada.")
+    )
+
 
 @router.get("/", response_model=list[FinancialEntryResponse])
 def get_all_financial(db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
