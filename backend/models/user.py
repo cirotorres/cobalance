@@ -1,18 +1,22 @@
-# from sqlmodel import SQLModel, Field
-
-# class User(SQLModel, table=True):
-#     id: int | None = Field(default=None, primary_key=True)
-#     email: str
-#     password: str
-#     is_admin: bool = False
-
-# user1 = User(email="ciro@ciro", password="123")
-
 from sqlalchemy import Column, Integer, String, Boolean
-from db.base import Base
+from sqlalchemy.orm import relationship
+from db.database import Base
 
 class User(Base):
+    __tablename__ = "users"
+
     id = Column(Integer, primary_key=True)
-    email = Column(String)
-    password = Column(String)
+    email = Column(String, unique=True)
+    name = Column(String, nullable=False)
+    password_hash = Column(String, nullable=False)
     is_admin = Column(Boolean)
+    age = Column(Integer, nullable=True)
+
+    participants = relationship(
+        "Participant",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    financial_entries = relationship("FinancialEntry", back_populates="user")
+
