@@ -116,21 +116,16 @@ def financial_assistant(
             )
 
         participant = find_participant_by_name(db, current_user, participant_name)
-        query = db.query(FinancialEntry).filter(
-            FinancialEntry.user_id == current_user.id,
-            FinancialEntry.participant_id == participant.id
-        )
 
-        total_amount = 0
-        for entry in query.all():
-            total_amount += entry.amount
+        if participant:
+            participant_total = get_total_participant(participant.id, db, current_user)
 
         return {
             "intent": intent,
             "participant_id": participant.id,
             "participant_name": participant.name,
-            "total_amount": total_amount,
-            "message": f"Total de {participant.name}: {total_amount}",
+            "total_amount": participant_total,
+            "message": f"Total de {participant.name}: {participant_total}",
         }
 
     raise HTTPException(
@@ -158,7 +153,10 @@ def calculo_total(db: Session = Depends(get_session), current_user: User = Depen
     for valor in query_final:
         total_amount += valor.amount
 
-    return total_amount
+    return {
+        "user_name": current_user.name,
+        "user_total": total_amount
+    }
 
 @router.get("/summary/{participant_id}")
 def get_total_participant(participant_id: int, db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
@@ -184,18 +182,22 @@ def get_total_participant(participant_id: int, db: Session = Depends(get_session
     for valor in query_final:
         total_amount += valor.amount
 
-    return {
-    "participant_id": participant_id,
-    "name": participant.name,
-    "total_amount": total_amount
-    }
+    return total_amount
 
-@router.get("/financial-entries")
+    # return {
+    # "participant_id": participant_id,
+    # "name": participant.name,
+    # "total_amount": total_amount
+    # }
+
+@router.get("/financial-filters")
 def get_entries(
     participant_id: Optional[int] = None,
     is_reviewed: Optional[bool] = None,
     source: Optional[str] = None,
     own_user: Optional[bool] = None,
+    data_month: Optional[str] = None,
+    data_day: Optional[str] = None,
     db: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
     ):
@@ -204,7 +206,7 @@ def get_entries(
         FinancialEntry.user_id == current_user.id
     )
 
-    filter = apply_filters(query, current_user, participant_id, is_reviewed, source, own_user)
+    filter = apply_filters(query, current_user, participant_id, is_reviewed, source, own_user, data_month, data_day)
 
     return filter.all()
 

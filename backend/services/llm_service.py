@@ -21,54 +21,6 @@ def _parse_json_response(response: str):
         return {"error": "Resposta inválida", "raw": response}
 
 
-# def chamada_llm(pergunta: str):
-
-
-    client = Client(
-        host=LLM_BASE_URL,
-        headers={'Authorization': 'Bearer ' + LLM_API_KEY}
-    )
-
-    messages = [
-        {
-            'role': 'system',
-            'content': 
-            f'''
-
-                Retorne SOMENTE JSON puro.
-                Não use markdown.
-                Não use ```json.
-                Não escreva explicações.
-                Retorne apenas um array JSON válido com:
-                  amount,
-                  description, 
-                  transaction_date, 
-                  installment_number, 
-                  installment_total,
-                  participant_name,
-                  source = "ia".
-
-                Se não especificar participant_name, aplique None. 
-                Se não especificar data, use esta data atual: {hoje} 
-                Observe que os parcelamentos são 1 lançamento por mês. 
-                Em parcelamentos, observe a data de lançamento inicial e as outras para os meses seguintes. 
-                Em parcelamentos, observe a divisão do valor total para o numero total de parcelas, caso esteja explícito o valor total da finança.
-            '''
-        },
-        {
-            'role': 'user',
-            'content': pergunta,
-        },
-    ]
-
-    response = ""
-
-    for part in client.chat(LLM_MODEL, messages=messages, stream=True):
-        response += part.message.content
-
-    return _parse_json_response(response)
-
-
 def interpretar_comando_financeiro(pergunta: str):
     client = Client(
         host=LLM_BASE_URL,
@@ -106,7 +58,7 @@ def interpretar_comando_financeiro(pergunta: str):
                     installment_number,
                     installment_total,
                     participant_name,
-                    source = "ia".
+                    source = "IA".
                   - participant_name no topo pode ser null.
 
                 Para "get_participant_total":
