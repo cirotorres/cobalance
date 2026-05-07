@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
 
-from routes.financial_entries import create_entries_from_llm_items, find_participant_by_name, get_total_participant
+from helpers.create_entries_llm import create_entries_from_llm_items, find_participant_by_name
+from routes.financial_entries import get_total_participant
 from core.security import get_current_user
 from models.user import User
 from services.llm_service import interpretar_comando_financeiro
@@ -19,8 +20,17 @@ def financial_assistant(
 ):
     command = interpretar_comando_financeiro(data.text)
 
-    if isinstance(command, dict) and command.get("error"):
-        raise HTTPException(status_code=400, detail=command)
+    if not isinstance(command, dict):
+        raise HTTPException(
+            status_code=400,
+            detail="Resposta inválida da IA"
+        )
+
+    if command.get("error"):
+        raise HTTPException(
+            status_code=400,
+            detail=command["error"]
+        )
 
     intent = command.get("intent")
 

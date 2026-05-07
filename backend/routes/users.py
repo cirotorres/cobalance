@@ -11,6 +11,7 @@ router = APIRouter()
 def create_user(user_data: UserCreate, db: Session = Depends(get_session)):
 
     exist_user = db.query(User).filter(User.email == user_data.email).first()
+
     if exist_user:
         raise HTTPException(status_code=400,detail="Já existe.")
     
@@ -39,6 +40,7 @@ def list_users(db: Session = Depends(get_session), current_user: User = Depends(
         raise HTTPException(status_code=401, detail="Não autorizado.")
     list_all = db.query(User).all()
     return list_all
+
 
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, db: Session = Depends(get_session)):
