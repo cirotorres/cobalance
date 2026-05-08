@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import styles from './Login.module.css';
+import  './Login.css';
+import googleIcon from '../../assets/google.svg'
+import appleIcon from '../../assets/apple.svg'
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -7,45 +9,54 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Submitted:', { email, password });
+    console.log('Enviado:', { email, password });
   };
 
   return (
-    <div className={styles.screen}>
-      <section className={styles.card}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>Entrar</h1>
-          <p className={styles.subtitle}>Acesse sua conta</p>
+    <div className='screen'>
+      <section className='card'>
+        <header className='header'>
+          <h1 className='title'>Entrar</h1>
+          <p className='subtitle'>Acesse com sua conta</p>
         </header>
-        <div className="group-social">
-          <button className="social-media">Google</button>
-          <button className="social-media">Apple</button>
+        <div className='social'>
+          <button className='iconsocial'>
+          <img src={googleIcon} alt="Google" className='imagemsocial' />
+          Google
+        </button>
+
+        <button className='iconsocial'>
+          <img src={appleIcon} alt="Apple" className='imagemsocial' />
+          Apple
+        </button>
         </div>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="email">
+        <p className='separador'>ou</p>
+
+        <form className='form' onSubmit={handleSubmit}>
+          <div className='field'>
+            <label className='label' htmlFor="email">
               Email
             </label>
             <input
               id="email"
-              className={styles.input}
+              className='input'
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="voce@exemplo.com"
+              placeholder="teste@exemplo.com"
               autoComplete="email"
               required
             />
           </div>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="password">
+          <div className='field'>
+            <label className='label' htmlFor="password">
               Senha
             </label>
             <input
               id="password"
-              className={styles.input}
+              className='input'
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -55,10 +66,12 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className={styles.button}>
+          <button type="submit" className='button'>
             Entrar
           </button>
         </form>
+         <p className="signup-text">Ainda não tem conta? <a href="#" className="">Crie aqui!</a></p>
+
       </section>
     </div>
   );
