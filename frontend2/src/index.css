@@ -1,86 +1,45 @@
+:root {
+  --color-bg: #f5f7fb;
+  --color-surface: #ffffff;
+  --color-primary: #4f7cff;
+  --color-primary-hover: #3a64e0;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
 
+  --radius-md: 12px;
+  --radius-lg: 20px;
 
-/* importing google fonts */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+  --shadow-card: 0 10px 30px rgba(31, 41, 55, 0.08);
+  --shadow-focus: 0 0 0 4px rgba(79, 124, 255, 0.15);
 
+  --transition: all 0.2s ease;
+}
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-     font-family: "Montserrat", sans-serif;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background: rgb(200, 197, 197);
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
-#root {
-    width: 100%;
-    padding: 0 0.6rem;
-}
-
-.group-buttons-social {
-    display: flex;
-    gap: 1rem;
-}
-
-.login-container{
-    max-width: 410px;
-    margin: 0 auto;
-    border-radius: 0.5rem;
-    padding: 2rem 1.5rem;
-    background: #fff;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.login-container .form-title {
-    text-align: center;
-    font-size: 1.37rem;
-    font-weight: 600;
-    margin-bottom: 1.87rem;
-}
-
-.login-container .social-button {
-    display: flex;
-    gap: 1.4rem;
-}
-
-.social-login .social-button {
-    display: flex;
-    width: 100%;
-    gap: 0.81rem;
-    cursor: pointer;
-    padding: 0.75rem 0;
-    font-size: 1rem;
-    align-items: center;
-    border-radius: 0.31rem;
-    justify-content: center;
-    background: #F9F8FF;
-    border: 1px solid #D5CBFF;
-    transition: 0.3s ease;
-}
-
-.social-login .social-button:hover{
-
-    background: #f1eff9;
-    border-color: #5f41e4;
-}
-
-.social-login .social-button .social-icon {
-    width: 23px;
-}
-
-.login-container .separator {
-    margin: 1.5rem 0;
-    text-align: center;
-}
-
-.login-form  {
-    width: 100%;
-    height: 100%;
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
