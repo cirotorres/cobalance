@@ -1,28 +1,68 @@
 import { useState } from 'react';
+
+import { useNavigate } from "react-router-dom";
 import  './Login.css';
 import googleIcon from '../../assets/google.svg'
 import appleIcon from '../../assets/apple.svg'
 
+import { loginUser, listUsers } from "../../services/authService";
+
 function Login() {
+
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [flip, setFlip] = useState(true);
 
-  const handleSubmit = (e) => {
+  const [name, setName] = useState('');
+  const [confirmPass, setConfirmPass] = useState('');
+
+  const [isSignup, setIsSignup] = useState(false);
+
+  const handleSubLogin = async (e) => {
     e.preventDefault();
-    console.log('Enviado:', { email, password });
-  };
+
+    try {
+        const data = await loginUser({
+          email,
+          password
+        });
+        console.log(data);
+
+        if (data.access_token) {
+          localStorage.setItem(
+            "token",
+            data.access_token
+          );
+          navigate("/home");
+        }
+
+      } catch (error) {
+        console.error(error);
+      }
+      
+    };
+
+  
+  const handleSubRegister = async (e) => {
+    e.preventDefault();
+
+    try {
+        const data = await listUsers();
+        console.log(data);
+        
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
   return (
-    <div className='screen'>
-      <button className="switch" onClick={() => setFlip(true)}>on</button>
-      <button className="switch" onClick={() => setFlip(false)}>off</button>
-
-    {flip? 
-      <section className='card'>
+    <div className='screen'> 
+    <div className={`card-flip ${isSignup ? "flipped" : ""}`}>
+      <section className='face front'>
         <header className='header'>
           <h1 className='title'>Entrar</h1>
-          <p className='subtitle'>Acesse com sua conta</p>
+          <p className='subtitle'>Acesse sua conta com</p>
         </header>
         <div className='social'>
           <button className='iconsocial'>
@@ -30,15 +70,15 @@ function Login() {
           Google
           </button>
 
-        <button className='iconsocial'>
-          <img src={appleIcon} alt="Apple" className='imagemsocial' style={{height: 32}} />
-          Apple
-        </button>
+          <button className='iconsocial'>
+            <img src={appleIcon} alt="Apple" className='imagemsocial' style={{height: 32}} />
+            Apple
+          </button>
         </div>
 
         <p className='separador'>ou</p>
 
-        <form className='form' onSubmit={handleSubmit}>
+        <form className='form' onSubmit={handleSubLogin}>
           <div className='field'>
             <label className='label' htmlFor="email">
               Email
@@ -75,17 +115,36 @@ function Login() {
             Entrar
           </button>
         </form>
-         <p className="signup-text">Ainda não tem conta? <a href="/signup" 
-         className="">Crie aqui!</a></p>
-
-         
+         <p className="signup-text">
+          Ainda não tem conta? 
+            <button onClick={() => setIsSignup(true)}>
+                  Crie aqui!
+            </button>
+         </p>
       </section>
-      :
-      <section className='card'>
-        <header className='header'>
-          <h1 className='title'>Criar conta</h1>
-          <p className='subtitle'>Crie com sua conta</p>
-        </header>
+
+
+      {/* card flip back  */}
+
+
+      <section className='face back'>
+        <div className="headervoltar">
+            <button onClick={() => setIsSignup(false)} style={{background: 'transparent', width: 25, height: 30, border: "none", cursor: 'pointer'}} type="button" className="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-chevron-left" viewBox="0 0 16 16">
+                  <path fillRule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0"></path>
+                </svg>
+            </button>
+          {/* <div className="voltar">
+            <button type="button" onClick={() => setIsSignup(false)}>
+              Voltar
+            </button>
+          </div> */}
+          <header className='header'> 
+            <h1 className='title'>Criar conta </h1>
+            <p className='subtitle'>Crie com</p>
+          </header>
+
+        </div>
         <div className='social'>
           <button className='iconsocial'>
           <img src={googleIcon} alt="Google" className='imagemsocial' />
@@ -100,7 +159,22 @@ function Login() {
 
         <p className='separador'>ou</p>
 
-        <form className='form' onSubmit={handleSubmit}>
+        <form className='form' onSubmit={handleSubRegister}>
+          <div className='field'>
+            <label className='label' htmlFor="name">
+              Nome
+            </label>
+            <input
+              id="nome"
+              className='input'
+              type="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Nome"
+              required
+            />
+          </div>
+
           <div className='field'>
             <label className='label' htmlFor="email">
               Email
@@ -133,15 +207,29 @@ function Login() {
             />
           </div>
 
+          <div className='field'>
+            <label className='label' htmlFor="password">
+              Repetir Senha
+            </label>
+            <input
+              id="password"
+              className='input'
+              type="password"
+              value={confirmPass}
+              onChange={(e) => setConfirmPass(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
           <button type="submit" className='button'>
-            Entrar
+            Criar
           </button>
         </form>
-         <p className="signup-text">Ainda não tem conta? <a href="/signup" 
-         className="">Crie aqui!</a></p>
 
-         
-      </section> }
+      </section> 
+      </div>
     </div> 
   );
 }
