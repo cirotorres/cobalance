@@ -5,7 +5,8 @@ import  './Login.css';
 import googleIcon from '../../assets/google.svg'
 import appleIcon from '../../assets/apple.svg'
 
-import { loginUser, listUsers } from "../../services/authService";
+import { loginUser, listParticipants, isAdmin } from "../../services/authService";
+import api from '../../services/api';
 
 function Login() {
 
@@ -39,22 +40,45 @@ function Login() {
 
       } catch (error) {
         console.error(error);
+        alert("Usuário ou Senha incorretos.")
+        return
       }
       
     };
 
-  
   const handleSubRegister = async (e) => {
     e.preventDefault();
 
+    if (!confirmPassword()) {
+    alert("As senhas não coincidem")
+    return
+  }
+
     try {
-        const data = await listUsers();
-        console.log(data);
+      const create = await api.post("/users/", {
+        email: email,
+        name: name,
+        password: password,
+        age: 34
+      })
         
       } catch (error) {
-        console.error(error);
+        console.error(error.response.data.detail);
+        alert("Usuário já existente.")
+        return
       }
+      setIsSignup(false)
+      alert("Usuário criado com sucesso!")
     };
+
+
+    const confirmPassword = () => {
+      if (confirmPass !== password){
+        console.log("As senhas não coincidem.")
+        return false
+      }
+      return true
+    }
 
   return (
     <div className='screen'> 
@@ -117,7 +141,7 @@ function Login() {
         </form>
          <p className="signup-text">
           Ainda não tem conta? 
-            <button onClick={() => setIsSignup(true)}>
+            <button className='pulsar-button' onClick={() => setIsSignup(true)}>
                   Crie aqui!
             </button>
          </p>

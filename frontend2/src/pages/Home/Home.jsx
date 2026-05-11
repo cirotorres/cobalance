@@ -1,25 +1,48 @@
 import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import api from "../../services/api"
+import { listParticipants } from "../../services/authService"
 
 function Home () {
 
-const navigation = useNavigate()
+    const [participants, setParticipants] = useState([]);
 
-const token = localStorage.getItem("token")
+    const navigation = useNavigate()
 
-const logout = () => {
-  localStorage.removeItem("token")
-  navigation("/")
-}
+    const logout = () => {
+    localStorage.removeItem("token")
+    navigation("/")
+    }
 
-    return (
+    useEffect( () => {
+        const fetchParticipants = async () =>{
+            try{
+                const data = await listParticipants();
+                setParticipants(data);
+            } catch (error) {
+                console.error(error)
+            };
+        }
+         fetchParticipants();
+        }, [])
+
+return (
+
     <div>
-
-        {token ? (
         <button onClick={logout}>
             Logado, Sair
         </button>
-        ) :(<button onClick={()=> navigation("/")}>Não logado, voltar para login.</button>)}
 
+        <h1 className="">Lista de participantes</h1>
+
+        <ul className="">
+            {participants.map((p) => (
+                <li key={p.id}>
+                    {p.name},
+                    {p.user_id}
+                </li>
+            ))}
+        </ul>
     </div>
     )
 

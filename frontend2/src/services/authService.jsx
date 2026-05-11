@@ -5,7 +5,16 @@ export const loginUser = async (data) => {
   return response.data;
 };
 
-export const listUsers = async (data) => {
-  const response = await api.get("/users", data);
+export const listParticipants = async () => {
+  const response = await api.get("/participants/self");
   return response.data;
 };
+
+export const isAdmin = async () => {
+  try {
+    const response = await api.get("/auth/me");
+    return response.data.is_admin === true; 
+  } catch (error) {
+    return false;
+  }
+}
