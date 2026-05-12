@@ -176,7 +176,7 @@
 @keyframes pulsar {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.5);
   }
   
   70% {
@@ -192,8 +192,8 @@
 
 .pulsar-button {
   padding: 3px 10px;
-  background-color: var(--color-primary);
-  color: white;
+  background-color: transparent;
+  color: black;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -202,4 +202,3 @@
   /* Aplica a animação: nome, duração, tempo e repetição infinita */
   animation: pulsar 2s infinite;
 }
-

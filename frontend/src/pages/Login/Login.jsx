@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import styles from './Login.module.css';
 
-function Login() {
+function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Submitted:', { email, password });
+    onLogin?.({ email });
   };
 
   return (

@@ -99,7 +99,7 @@ def get_total_participant(participant_id: int, db: Session = Depends(get_session
     return total_amount
 
 
-@router.get("/financial-filters")
+@router.get("/financial-entries")
 def get_entries(
     participant_id: Optional[int] = None,
     is_reviewed: Optional[bool] = None,
@@ -109,15 +109,27 @@ def get_entries(
     data_day: Optional[str] = None,
     db: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
-    ):
+):
 
-    query = db.query(FinancialEntry).filter(
+    query = db.query(FinancialEntry)
+
+    # REGRA DE ACESSO
+    query = query.filter(
         FinancialEntry.user_id == current_user.id
     )
 
-    filter = apply_filters(query, current_user, participant_id, is_reviewed, source, own_user, data_month, data_day)
+    # FILTROS DINÂMICOS
+    query = apply_filters(
+        query=query,
+        participant_id=participant_id,
+        is_reviewed=is_reviewed,
+        source=source,
+        own_user=own_user,
+        date_month=data_month,
+        date_day=data_day
+    )
 
-    return filter.all()
+    return query.all()
 
 
 @router.post("/import-csv")

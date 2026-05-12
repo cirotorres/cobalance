@@ -49,6 +49,12 @@ def interpretar_comando_financeiro(pergunta: str):
                   - "get_participant_total": quando o usuário quiser consultar o total de um participante.
                   - "unknown": quando não for uma ação financeira suportada.
 
+                Tipos de source permitidas:
+                  - "credito"
+                  - "debito"
+                  - "pix"
+                  - "extrato"
+
                 Para "create_financial_entries":
                   - entries deve ser um array de lançamentos.
                   - Cada lançamento deve ter:
@@ -58,8 +64,9 @@ def interpretar_comando_financeiro(pergunta: str):
                     installment_number,
                     installment_total,
                     participant_name,
-                    source = "IA".
+                    source = "credito" (default),
                   - participant_name no topo pode ser null.
+                  - source só poderá ser algum dos outros tipos acima, caso seja especificado. 
 
                 Para "get_participant_total":
                   - participant_name deve conter o nome do participante.
