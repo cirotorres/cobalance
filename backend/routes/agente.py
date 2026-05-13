@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
 
+from models.financial_entries import FinancialEntry
 from helpers.create_entries_llm import create_entries_from_llm_items, find_participant_by_name
 from routes.financial_entries import get_total_participant
 from core.security import get_current_user
@@ -83,3 +84,19 @@ def financial_assistant(
         status_code=400,
         detail=command.get("message", "Não consegui identificar uma ação suportada.")
     )
+
+'''
+    1. ir ao banco 
+    2. pegar objeto da tabela de Finança que seja source "extrato" && participant_id == None
+    3. Se esse objeto for none, entrar na tabela de Finança que o bjeto tenha "source == credito" e da matche no objeto que tenha mesmo dia de registro e valor, hora do lançamento do extrato.
+    4. Atribuir o mesmo valor de participant_id do souce "credito" ao objeto do source "extrato".   
+'''
+
+@router.post("/merge")
+def merge_exec(db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+
+    query = db.query(FinancialEntry).filter(FinancialEntry.user_id == current_user.id)
+
+    all_extrato_none = query.filter(FinancialEntry.participant_id == None, FinancialEntry.source == "extrato").all() 
+    all_credito_part = query.filter(FinancialEntry.participant_id != None, FinancialEntry.source == "credito").all()
+

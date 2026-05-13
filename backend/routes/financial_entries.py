@@ -105,28 +105,26 @@ def get_entries(
     is_reviewed: Optional[bool] = None,
     source: Optional[str] = None,
     own_user: Optional[bool] = None,
-    data_month: Optional[str] = None,
-    data_day: Optional[str] = None,
+    date_month: Optional[str] = None,
+    date_day: Optional[str] = None,
     db: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
 
     query = db.query(FinancialEntry)
 
-    # REGRA DE ACESSO
     query = query.filter(
         FinancialEntry.user_id == current_user.id
     )
 
-    # FILTROS DINÂMICOS
     query = apply_filters(
         query=query,
         participant_id=participant_id,
         is_reviewed=is_reviewed,
         source=source,
         own_user=own_user,
-        date_month=data_month,
-        date_day=data_day
+        date_month=date_month,
+        date_day=date_day
     )
 
     return query.all()

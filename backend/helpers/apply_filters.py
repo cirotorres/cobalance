@@ -18,7 +18,7 @@ def apply_filters(
 
     if own_user:
         query = query.filter(
-            FinancialEntry.participant_id == None
+            FinancialEntry.participant_id.is_(None)
         )
 
     if participant_id is not None:
