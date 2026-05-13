@@ -168,3 +168,17 @@ Apenas para registro, **não implementar agora**:
 - Trabalhar **somente** dentro de `frontend/`.
 - Qualquer necessidade de tocar em arquivos fora dessa pasta exige **confirmação prévia** do usuário.
 - Não adicionar dependências novas nesta etapa (sem Tailwind, MUI, styled-components, react-router etc.).
+
+
+
+
+
+
+## Cores
+dom - verde
+ciro - laranja
+mona - rosa pink
+saronick - azul claro
+jane - amarelo
+mae - rosa bebe
+outros - roxo

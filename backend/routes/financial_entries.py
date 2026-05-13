@@ -72,6 +72,30 @@ def calculo_total(db: Session = Depends(get_session), current_user: User = Depen
         "user_total": total_amount
     }
 
+
+@router.post("/merge")
+def merge_exec(db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+
+    query = db.query(FinancialEntry).filter(FinancialEntry.user_id == current_user.id)
+
+    all_extrato_none = query.filter(FinancialEntry.participant_id == None, FinancialEntry.source == "extrato").all() 
+    all_credito_part = query.filter(FinancialEntry.participant_id != None, FinancialEntry.source == "credito").all()
+
+    for item_without in all_extrato_none:
+
+        for item_with in all_credito_part:
+            
+            same_real_value = int(item_without.amount) == int(item_with.amount)
+            same_real_date = item_without.transaction_date == item_with.transaction_date
+
+            if same_real_value and same_real_date:
+                item_without.participant_id = (item_with.participant_id)
+
+                break
+    db.commit()
+    return {"merged": "Processo completo."}
+
+
 @router.get("/summary/{participant_id}")
 def get_total_participant(participant_id: int, db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
 
