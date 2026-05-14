@@ -1,8 +1,5 @@
 import { useNavigate } from "react-router-dom"
-import { useEffect, useState } from "react"
-import api from "../../services/api"
-import { listParticipants } from "../../services/authService"
-
+import { useState } from "react"
 import AppLayout from '../../components/AppLayout/AppLayout';
 import Tabs from '../../components/Tabs/Tabs';
 import LancamentosTab from './LancamentosTab/LancamentosTab';
@@ -20,8 +17,6 @@ const TABS = [
 
 function Home () {
 
-    const [participants, setParticipants] = useState([]);
-
     const [activeTab, setActiveTab] = useState('lancamentos');
 
     const navigation = useNavigate()
@@ -31,21 +26,9 @@ function Home () {
     navigation("/")
     }
 
-    useEffect( () => {
-        const fetchParticipants = async () =>{
-            try{
-                const data = await listParticipants();
-                setParticipants(data);
-            } catch (error) {
-                console.error(error)
-            };
-        }
-         fetchParticipants();
-        }, [])
-
 return (
 
-    <AppLayout userName={"userName"} >
+    <AppLayout userName={"userName"} onLogout={logout}>
       <div className={styles.container}>
         <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
 

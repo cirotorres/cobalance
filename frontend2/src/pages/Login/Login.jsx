@@ -5,7 +5,7 @@ import  './Login.css';
 import googleIcon from '../../assets/google.svg'
 import appleIcon from '../../assets/apple.svg'
 
-import { loginUser, listParticipants, isAdmin } from "../../services/authService";
+import { loginUser } from "../../services/authService";
 import api from '../../services/api';
 
 function Login() {
@@ -55,7 +55,7 @@ function Login() {
   }
 
     try {
-      const create = await api.post("/users/", {
+      await api.post("/users/", {
         email: email,
         name: name,
         password: password,

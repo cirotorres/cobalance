@@ -88,14 +88,13 @@ function formatDateTime(iso) {
   return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
-function LancamentoRow({ item, index }) {
+function LancamentoRow({ item, index, participants }) {
   const [expanded, setExpanded] = useState(false);
   const isOutflow = item.amount < 0;
 
-  const [participants, setParticipants] = useState([]);
-
-  const participant = participants[item.participant_id];
-
+  const participant = participants.find(
+    (p) => p.id === item.participant_id
+  )
 
   const hasInstallments = item.installment_total > 1;
   const sourceLabel = SOURCE_LABEL[item.source] || item.source;
@@ -103,17 +102,6 @@ function LancamentoRow({ item, index }) {
 
   const stop = (e) => e.stopPropagation();
 
-  useEffect( () => {
-      const fetchParticipants = async () =>{
-          try{
-              const data = await listParticipants();
-              setParticipants(data);
-          } catch (error) {
-              console.error(error)
-          };
-      }
-      fetchParticipants();
-      }, [])
 
   return (
     <li className={styles.row} style={{ '--i': index }}>

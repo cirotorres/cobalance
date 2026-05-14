@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-// import finances from '../../../mocks/finances';
 import LancamentoRow from './LancamentoRow';
 import styles from './LancamentosTab.module.css';
-import { listFinances } from '../../../services/authService'
+import { listFinances, listParticipants } from '../../../services/authService'
 
 function PlusIcon() {
   return (
@@ -25,18 +24,38 @@ function PlusIcon() {
 
 function LancamentosTab() {
 
+  const [participants, setParticipants] = useState([])
+
   const [finances, setFinances] = useState([]);
 
   useEffect( () => {
       const fetchFinances = async () =>{
           try{
               const data = await listFinances();
-              setFinances(data);
+
+              const data_filt = data.filter(
+                (finance) => finance.source === "credito"
+              );
+
+              setFinances(data_filt);
           } catch (error) {
               console.error(error)
           };
       }
       fetchFinances();
+      }, [])
+
+  useEffect( () => {
+      const fetchParticipants = async () =>{
+          try{
+              const data = await listParticipants();
+              setParticipants(data);
+              console.log(data)
+          } catch (error) {
+              console.error(error)
+          };
+      }
+      fetchParticipants();
       }, [])
 
 
@@ -60,7 +79,7 @@ function LancamentosTab() {
 
       <ul className={styles.list}>
         {finances.map((item, index) => (
-          <LancamentoRow key={item.id} item={item} index={index} />
+          <LancamentoRow key={item.id} item={item} index={index} participants={participants}/>
         ))}
       </ul>
     </section>

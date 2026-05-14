@@ -19,7 +19,7 @@ export const isAdmin = async () => {
   try {
     const response = await api.get("/auth/me");
     return response.data.is_admin === true; 
-  } catch (error) {
+  } catch {
     return false;
   }
 }
