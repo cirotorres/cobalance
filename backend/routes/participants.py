@@ -1,9 +1,11 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db.database import get_session
 from models.participant import Participant
 from models.user import User
-from schemas.participant import ParticipantCreate, ParticipantResponse
+from schemas.participant import ParticipantColorUpdate, ParticipantCreate, ParticipantResponse
 from core.security import get_current_user
 
 router = APIRouter()
@@ -66,6 +68,37 @@ def get_participant(participant_id: int, db: Session = Depends(get_session), cur
 
     if not participant:
         raise HTTPException(status_code=404, detail="Participante não encontrado")
+
+    return participant
+
+
+@router.patch("/color/{participant_id}")
+def update_participant_color(
+    participant_id: int,
+    payload: ParticipantColorUpdate,
+    user_id: Optional[int] = None,
+    db: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    target_user_id = current_user.id
+
+    if current_user.is_admin and user_id:
+        target_user_id = user_id
+
+    participant = db.query(Participant).filter(
+        Participant.id == participant_id,
+        Participant.user_id == target_user_id
+    ).first()
+
+    if not participant:
+        raise HTTPException(status_code=404, detail="Participant não encontrado.")
+    
+    participant.color = payload.color
+
+    print(f"[COLOR] Cor do participante: {participant.color}")
+
+    db.commit()
+    db.refresh(participant)
 
     return participant
 

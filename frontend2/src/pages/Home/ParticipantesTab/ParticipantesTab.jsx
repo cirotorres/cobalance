@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import ParticipanteRow from './ParticipanteRow';
 import styles from './ParticipantesTab.module.css';
-import { listParticipants } from '../../../services/authService';
+import { listParticipants, updateParticipantColor } from '../../../services/participantService';
 
 function PlusIcon() {
   return (
@@ -28,8 +28,10 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
+        
         const data = await listParticipants();
         setParticipants(data);
+        
       } catch (error) {
         console.error(error);
       }
@@ -37,11 +39,16 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
     fetchParticipants();
   }, []);
 
+
+
   const handleAdd = () => {
     console.log('add participante');
   };
 
-  const handleChangeColor = (id, hex) => {
+  const handleChangeColor = async (id, hex) => {
+
+    await updateParticipantColor(id, hex);
+
     setParticipantColors((prev) => {
       const next = { ...prev };
       if (hex === null) {

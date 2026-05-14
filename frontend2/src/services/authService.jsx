@@ -5,16 +5,6 @@ export const loginUser = async (data) => {
   return response.data;
 };
 
-export const listParticipants = async () => {
-  const response = await api.get("/participants/self");
-  return response.data;
-};
-
-export const listFinances = async () => {
-  const response = await api.get("/financial/financial-entries");
-  return response.data;
-};
-
 export const isAdmin = async () => {
   try {
     const response = await api.get("/auth/me");

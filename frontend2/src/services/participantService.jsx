@@ -1,0 +1,15 @@
+import api from "./api";
+
+export const listParticipants = async () => {
+  const response = await api.get("/participants/self");
+  return response.data;
+};
+
+
+export const updateParticipantColor = async (id, color) => {
+  const response = await api.patch(`/participants/color/${id}`, {
+    color,
+  });
+
+  return response.data;
+};

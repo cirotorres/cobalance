@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import LancamentoRow from './LancamentoRow';
 import styles from './LancamentosTab.module.css';
-import { listFinances, listParticipants } from '../../../services/authService'
+import { listFinances } from '../../../services/financialService'
+import { listParticipants } from '../../../services/participantService'
 
 function PlusIcon() {
   return (
