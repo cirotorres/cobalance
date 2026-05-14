@@ -22,7 +22,7 @@ function PlusIcon() {
   );
 }
 
-function LancamentosTab() {
+function LancamentosTab({ participantColors = {} }) {
 
   const [participants, setParticipants] = useState([])
 
@@ -79,7 +79,13 @@ function LancamentosTab() {
 
       <ul className={styles.list}>
         {finances.map((item, index) => (
-          <LancamentoRow key={item.id} item={item} index={index} participants={participants}/>
+          <LancamentoRow
+            key={item.id}
+            item={item}
+            index={index}
+            participants={participants}
+            participantColors={participantColors}
+          />
         ))}
       </ul>
     </section>

@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import  { useState } from 'react';
 import styles from './LancamentoRow.module.css';
 
-import { listParticipants } from "../../../services/authService"
 
 function EditIcon() {
   return (
@@ -88,7 +87,15 @@ function formatDateTime(iso) {
   return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
-function LancamentoRow({ item, index, participants }) {
+function hexToRgba(hex, alpha) {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.substring(0, 2), 16);
+  const g = parseInt(h.substring(2, 4), 16);
+  const b = parseInt(h.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function LancamentoRow({ item, index, participants, participantColors = {} }) {
   const [expanded, setExpanded] = useState(false);
   const isOutflow = item.amount < 0;
 
@@ -102,10 +109,15 @@ function LancamentoRow({ item, index, participants }) {
 
   const stop = (e) => e.stopPropagation();
 
+  const participantColor = participant ? participantColors[participant.id] : null;
+  const rowStyle = { '--i': index };
+  if (participantColor) {
+    rowStyle.backgroundColor = hexToRgba(participantColor, 0.30);
+  }
 
   return (
-    <li className={styles.row} style={{ '--i': index }}>
-      <button
+    <li className={styles.row} style={rowStyle}>
+      <div
         type="button"
         className={`${styles.summary} ${expanded ? styles.summaryOpen : ''}`}
         onClick={() => setExpanded((v) => !v)}
@@ -162,7 +174,7 @@ function LancamentoRow({ item, index, participants }) {
             </button>
           </div>
         </div>
-      </button>
+      </div>
 
       <div
         id={panelId}
