@@ -147,6 +147,7 @@ function LancamentoRow({ item, index, participants, participantColors = {} }) {
             <span
               className={`${styles.chevron} ${expanded ? styles.chevronOpen : ''}`}
               aria-hidden="true"
+              onClick={() => setExpanded((v) => !v)}
             >
               <ChevronIcon />
             </span>

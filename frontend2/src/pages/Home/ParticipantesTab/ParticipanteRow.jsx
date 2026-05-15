@@ -54,21 +54,63 @@ function TrashIcon() {
   );
 }
 
+function CheckIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
 function ParticipanteRow({ participant, index, color, onChangeColor, onDelete }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const rightRef = useRef(null);
+  const [isDeleting, setItsDeleting] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editName, setEditName] = useState(participant.name || '');
 
 
   useEffect(() => {
-    if (!paletteOpen) return;
+    if (!paletteOpen && !confirmOpen) return;
     const handleClickOutside = (e) => {
       if (rightRef.current && !rightRef.current.contains(e.target)) {
         setPaletteOpen(false);
+        setConfirmOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [paletteOpen]);
+  }, [paletteOpen, confirmOpen]);
 
   const initial = (participant.name || '?').charAt(0).toUpperCase();
 
@@ -77,25 +119,93 @@ function ParticipanteRow({ participant, index, color, onChangeColor, onDelete })
     setPaletteOpen(false);
   };
 
-  const handleDelete = (e) => {
-    e.preventDefault()
+  const handleDelete = async (e) => {
+    e.preventDefault();
     try {
-      setTimeout(async() =>{
-      await deleteParticipante(participant.id)
-      onDelete(participant.id);
-      console.log("Participante deletado.")
-      }, 300)
-
-    }catch (error) {
-      console.log(error)
+      await deleteParticipante(participant.id);
+    } catch (error) {
+      console.log(error);
+      return; // mantém a row, não anima
     }
-  }
+    setConfirmOpen(false);
+    setItsDeleting(true); // dispara slideFadeDelete
+  };
+
+  const handleAnimationEnd = (e) => {
+    if (!isDeleting) return;
+    if (e.animationName && e.animationName.includes('slideFadeDelete')) {
+      onDelete(participant.id);
+      console.log("Participante deletado.");
+    }
+  };
+
+  const openConfirm = () => {
+    setPaletteOpen(false);
+    setConfirmOpen(true);
+  };
+
+  const cancelConfirm = () => {
+    setConfirmOpen(false);
+  };
+
+  const openEdit = () => {
+    setEditName(participant.name || '');
+    setPaletteOpen(false);
+    setConfirmOpen(false);
+    setEditOpen(true);
+  };
+
+  const cancelEdit = () => {
+    setEditOpen(false);
+    setEditName(participant.name || '');
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    // mock — futura chamada à API de edição
+    console.log('edit participant', participant.id, '->', editName);
+    setEditOpen(false);
+  };
 
   return (
     <li
-      className={`${styles.row} ${paletteOpen ? styles.rowActive : ''}`}
+      className={`${styles.row} ${paletteOpen || confirmOpen ? styles.rowActive : ''} ${isDeleting ? styles.deleting : ''}`}
       style={{ '--i': index }}
+      onAnimationEnd={handleAnimationEnd}
     >
+      {editOpen ? (
+        <form onSubmit={handleEditSubmit}>
+          <div className={styles.summary}>
+            <div className={styles.left}>
+              <span className={styles.badge}></span>
+              <div className={styles.meta}>
+                <input
+                  className={styles.inputRow}
+                  placeholder="Nome"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <button
+                type="submit"
+                className={`${styles.iconBtn} ${styles.confirm}`}
+                aria-label="Confirmar"
+              >
+                <CheckIcon />
+              </button>
+              <button
+                type="button"
+                className={`${styles.iconBtn} ${styles.danger}`}
+                aria-label="Cancelar"
+                onClick={cancelEdit}
+              >
+                <XIcon />
+              </button>
+            </div>
+          </div>
+        </form>
+      ) : (
       <div className={styles.summary}>
         <div className={styles.left}>
           <span className={styles.badge}>{initial}</span>
@@ -117,7 +227,7 @@ function ParticipanteRow({ participant, index, color, onChangeColor, onDelete })
             type="button"
             className={styles.iconBtn}
             aria-label="Editar"
-            onClick={() => console.log('edit participant', participant.id)}
+            onClick={openEdit}
           >
             <EditIcon />
           </button>
@@ -126,10 +236,34 @@ function ParticipanteRow({ participant, index, color, onChangeColor, onDelete })
             type="button"
             className={`${styles.iconBtn} ${styles.danger}`}
             aria-label="Excluir"
-            onClick={(e) => handleDelete(e)}
+            onClick={openConfirm}
           >
             <TrashIcon />
           </button>
+
+          {confirmOpen && (
+            <div className={styles.confirmPop} role="dialog" aria-label="Confirmar exclusão">
+              <span className={styles.confirmText}>Excluir?</span>
+              <div className={styles.confirmActions}>
+                <button
+                  type="button"
+                  className={`${styles.iconBtn} ${styles.confirm}`}
+                  aria-label="Sim"
+                  onClick={handleDelete}
+                >
+                  Sim
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.iconBtn} ${styles.danger}`}
+                  aria-label="Não"
+                  onClick={cancelConfirm}
+                >
+                  Não
+                </button>
+              </div>
+            </div>
+          )}
 
           {paletteOpen && (
             <div className={styles.palette} role="dialog" aria-label="Paleta de cores">
@@ -153,6 +287,7 @@ function ParticipanteRow({ participant, index, color, onChangeColor, onDelete })
           )}
         </div>
       </div>
+      )}
     </li>
   );
 }

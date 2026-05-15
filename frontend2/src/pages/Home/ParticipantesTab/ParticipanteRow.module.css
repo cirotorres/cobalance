@@ -20,12 +20,6 @@
   }
 }
 
-.deleting {
-  animation: slideFadeDelete 300ms ease forwards;
-  animation-delay: calc(var(--i, 0) * 80ms);
-  pointer-events: none;
-}
-
 .row {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -40,6 +34,13 @@
   animation: slideFadeRight 0.45s ease-out forwards;
   animation-delay: calc(var(--i, 0) * 80ms);
 }
+
+.row.deleting {
+    animation: slideFadeDelete 300ms ease forwards;
+    animation-delay: 0s;
+    opacity: 1;          /* garante o ponto inicial do keyframe */
+    pointer-events: none;
+  }
 
 .row:hover {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
@@ -218,4 +219,38 @@
   border-radius: var(--radius-md);
   outline: none;
   transition: var(--transition);
+}
+
+.confirmPop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 20;
+  min-width: 140px;
+}
+
+.confirmText {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.confirmActions .iconBtn {
+  width: auto;
+  padding: 0 12px;
+  font-size: 0.85rem;
 }

@@ -67,19 +67,22 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
   const [createNewRow, setCreateNewRow] = useState(false);
   const [newParticipant, setNewParticipant] = useState('');
 
-  useEffect(() => {
-    const fetchParticipants = async () => {
-      try {
-        
-        const data = await listParticipants();
-        setParticipants(data);
-        
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchParticipants();
-  }, []);
+
+
+const fetchParticipants = async () => {
+  try {
+    const data = await listParticipants();
+    setParticipants(data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  fetchParticipants();
+
+}, []);
 
 
   const clickCreate = () => {
@@ -110,14 +113,18 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
     e.preventDefault();
 
     try{
-      adicionarParticipante(newParticipant)
+      await adicionarParticipante(newParticipant)
+      await fetchParticipants();
+      setNewParticipant('');
+      setCreateNewRow(false);
       console.log('Participante adicionado.')
+
     } catch (error) {
       console.error(error);
     }
   }
 
-  const handleDeleteParticipant = (id) => {
+  const handleDeleteParticipant = async (id) => {
   setParticipants((prev) =>
     prev.filter((p) => p.id !== id)
   );
