@@ -9,6 +9,23 @@
   }
 }
 
+@keyframes slideFadeDelete {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+.deleting {
+  animation: slideFadeDelete 300ms ease forwards;
+  animation-delay: calc(var(--i, 0) * 80ms);
+  pointer-events: none;
+}
+
 .row {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -49,7 +66,7 @@
 .left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
   flex: 1 1 auto;
 }
@@ -119,6 +136,11 @@
   border-color: var(--color-danger);
 }
 
+.confirm:hover {
+  background: var(--color-confirm);
+  border-color: var(--color-confirm)
+}
+
 .colorBtn {
   width: 32px;
   height: 32px;
@@ -184,4 +206,16 @@
   height: 1px;
   background: var(--color-text-muted);
   transform: rotate(-45deg);
+}
+
+.inputRow {
+  width: 100%;
+  padding: 5px 14px;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: var(--transition);
 }

@@ -16,10 +16,15 @@ def create_participant(
     db: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
-    user = db.query(User).filter(User.id == participant_data.user_id).first()
+    target_user_id = current_user.id
+
+    if current_user.is_admin and participant_data.user_id:
+        target_user_id = participant_data.user_id
+
+    user = db.query(User).filter(User.id == target_user_id).first()
 
     exist_participant = db.query(Participant).filter(
-        Participant.user_id == participant_data.user_id,
+        Participant.user_id == target_user_id,
         Participant.name == participant_data.name,
     ).first()
 
@@ -27,14 +32,9 @@ def create_participant(
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
     if exist_participant:
         raise HTTPException(status_code=400, detail="Participante já adicionado.")
-    
-    id_do_user = current_user.id
-
-    if current_user.is_admin:
-        id_do_user = participant_data.user_id 
 
     new_participant = Participant(
-        user_id=id_do_user,
+        user_id=target_user_id,
         name=participant_data.name,
     )
 
@@ -52,10 +52,12 @@ def list_participants(db: Session = Depends(get_session), current_user: User = D
     participants = db.query(Participant).all()
     return participants
 
+
 @router.get("/self", response_model=list[ParticipantResponse])
 def list_self_participants(db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
-    self_participants = db.query(Participant).filter(Participant.user_id == current_user.id)
+    self_participants = db.query(Participant).filter(Participant.user_id == current_user.id).order_by(Participant.id.asc())
     return self_participants.all()
+
 
 @router.get("/{participant_id}", response_model=ParticipantResponse)
 def get_participant(participant_id: int, db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):

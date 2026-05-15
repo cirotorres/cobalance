@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class ParticipantCreate(BaseModel):
-    user_id: int | None = None
+    user_id: Optional[int] | None = None
     name: str
 
 

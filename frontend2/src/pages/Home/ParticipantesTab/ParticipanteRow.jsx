@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from './ParticipanteRow.module.css';
+import { deleteParticipante } from '../../../services/participantService'
 
 const PALETTE = [
   '#EF4444',
@@ -53,9 +54,10 @@ function TrashIcon() {
   );
 }
 
-function ParticipanteRow({ participant, index, color, onChangeColor }) {
+function ParticipanteRow({ participant, index, color, onChangeColor, onDelete }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const rightRef = useRef(null);
+
 
   useEffect(() => {
     if (!paletteOpen) return;
@@ -74,6 +76,20 @@ function ParticipanteRow({ participant, index, color, onChangeColor }) {
     onChangeColor(participant.id, hex);
     setPaletteOpen(false);
   };
+
+  const handleDelete = (e) => {
+    e.preventDefault()
+    try {
+      setTimeout(async() =>{
+      await deleteParticipante(participant.id)
+      onDelete(participant.id);
+      console.log("Participante deletado.")
+      }, 300)
+
+    }catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <li
@@ -110,7 +126,7 @@ function ParticipanteRow({ participant, index, color, onChangeColor }) {
             type="button"
             className={`${styles.iconBtn} ${styles.danger}`}
             aria-label="Excluir"
-            onClick={() => console.log('delete participant', participant.id)}
+            onClick={(e) => handleDelete(e)}
           >
             <TrashIcon />
           </button>

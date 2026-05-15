@@ -151,7 +151,7 @@ def get_entries(
         date_day=date_day
     )
 
-    return query.all()
+    return query.order_by(FinancialEntry.transaction_date.asc()).all()
 
 
 @router.post("/import-csv")

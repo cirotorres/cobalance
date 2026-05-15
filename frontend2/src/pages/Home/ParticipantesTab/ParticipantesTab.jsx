@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import ParticipanteRow from './ParticipanteRow';
 import styles from './ParticipantesTab.module.css';
-import { listParticipants, updateParticipantColor } from '../../../services/participantService';
+import stylesrow from './ParticipanteRow.module.css';
+import { listParticipants, updateParticipantColor, adicionarParticipante } from '../../../services/participantService';
+
 
 function PlusIcon() {
   return (
@@ -22,8 +24,48 @@ function PlusIcon() {
   );
 }
 
+function CheckIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+
 function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
   const [participants, setParticipants] = useState([]);
+  const [createNewRow, setCreateNewRow] = useState(false);
+  const [newParticipant, setNewParticipant] = useState('');
 
   useEffect(() => {
     const fetchParticipants = async () => {
@@ -40,10 +82,14 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
   }, []);
 
 
+  const clickCreate = () => {
+    setCreateNewRow(true)
+  }
 
-  const handleAdd = () => {
-    console.log('add participante');
-  };
+  const cancelCreate = () =>{
+    setCreateNewRow(false);
+    setNewParticipant('');
+  }
 
   const handleChangeColor = async (id, hex) => {
 
@@ -60,6 +106,23 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
     });
   };
 
+  const handleAdd = async (e) => {
+    e.preventDefault();
+
+    try{
+      adicionarParticipante(newParticipant)
+      console.log('Participante adicionado.')
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleDeleteParticipant = (id) => {
+  setParticipants((prev) =>
+    prev.filter((p) => p.id !== id)
+  );
+};
+
   return (
     <section className={styles.section}>
       <div className={styles.head}>
@@ -67,7 +130,7 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
         <button
           type="button"
           className={styles.addBtn}
-          onClick={handleAdd}
+          onClick={clickCreate}
           aria-label="Adicionar participante"
         >
           <PlusIcon />
@@ -82,9 +145,46 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
             index={index}
             color={participantColors[p.id]}
             onChangeColor={handleChangeColor}
+            onDelete={handleDeleteParticipant}
           />
         ))}
       </ul>
+
+      {createNewRow && (
+        <form onSubmit={handleAdd}>
+          <div className={stylesrow.row}>
+              <div className={stylesrow.summary}>
+                  <div className={stylesrow.left}>
+                    <span className={stylesrow.badge}></span>
+                    <div className={stylesrow.meta}>
+                      <input 
+                        className={stylesrow.inputRow} 
+                        placeholder='Nome' 
+                        value={newParticipant}
+                        onChange={(e) => setNewParticipant(e.target.value)}
+                        />
+                    </div>
+                    <button
+                      type="submit"
+                      className={`${stylesrow.iconBtn} ${stylesrow.confirm}`}
+                      aria-label="Confirmar"
+                    >
+                      <CheckIcon />
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`${stylesrow.iconBtn} ${stylesrow.danger}`}
+                      aria-label="Excluir"
+                      onClick={() => cancelCreate(false)}
+                    >
+                      <XIcon />
+                    </button>
+                  </div>
+              </div>
+          </div> 
+        </form>
+        )}
     </section>
   );
 }
