@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from './ParticipanteRow.module.css';
-import { deleteParticipante } from '../../../services/participantService'
+import { deleteParticipante, updateParticipant } from '../../../services/participantService'
 
 const PALETTE = [
   '#EF4444',
@@ -91,7 +91,7 @@ function XIcon() {
   );
 }
 
-function ParticipanteRow({ participant, index, color, onChangeColor, onDelete }) {
+function ParticipanteRow({ participant, index, color, onChangeColor, onDelete, refreshParticipants }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const rightRef = useRef(null);
@@ -160,10 +160,13 @@ function ParticipanteRow({ participant, index, color, onChangeColor, onDelete })
     setEditName(participant.name || '');
   };
 
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
-    // mock — futura chamada à API de edição
+
+    await updateParticipant(participant.id, {name: editName})
     console.log('edit participant', participant.id, '->', editName);
+    
+    refreshParticipants()
     setEditOpen(false);
   };
 

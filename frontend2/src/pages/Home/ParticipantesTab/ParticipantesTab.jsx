@@ -153,6 +153,7 @@ useEffect(() => {
             color={participantColors[p.id]}
             onChangeColor={handleChangeColor}
             onDelete={handleDeleteParticipant}
+            refreshParticipants={fetchParticipants}
           />
         ))}
       </ul>

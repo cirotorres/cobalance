@@ -6,9 +6,15 @@ export const listParticipants = async () => {
 };
 
 export const updateParticipantColor = async (id, color) => {
-  const response = await api.patch(`/participants/color/${id}`, {
+  const response = await api.patch(`/participants/${id}`, {
     color,
   });
+
+  return response.data;
+};
+
+export const updateParticipant = async (id, data) => {
+  const response = await api.patch(`/participants/${id}`, data);
 
   return response.data;
 };

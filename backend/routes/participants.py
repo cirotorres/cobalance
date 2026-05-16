@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from db.database import get_session
 from models.participant import Participant
 from models.user import User
-from schemas.participant import ParticipantColorUpdate, ParticipantCreate, ParticipantResponse
+from schemas.participant import ParticipantUpdate, ParticipantCreate, ParticipantResponse
 from core.security import get_current_user
 
 router = APIRouter()
@@ -74,10 +74,10 @@ def get_participant(participant_id: int, db: Session = Depends(get_session), cur
     return participant
 
 
-@router.patch("/color/{participant_id}")
-def update_participant_color(
+@router.patch("/{participant_id}")
+def update_participant(
     participant_id: int,
-    payload: ParticipantColorUpdate,
+    payload: ParticipantUpdate,
     user_id: Optional[int] = None,
     db: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
@@ -93,11 +93,12 @@ def update_participant_color(
     ).first()
 
     if not participant:
-        raise HTTPException(status_code=404, detail="Participant não encontrado.")
-    
-    participant.color = payload.color
+        raise HTTPException(status_code=404, detail="Participante não encontrado.")
 
-    print(f"[COLOR] Cor do participante: {participant.color}")
+    payload_data = payload.model_dump(exclude_unset=True)
+
+    for key, value in payload_data.items():
+        setattr(participant, key, value)
 
     db.commit()
     db.refresh(participant)
