@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import styles from './ExtratoTab.module.css';
+import LancamentoRow from '../LancamentosTab/LancamentoRow';
 
 function UploadIcon() {
   return (
@@ -21,7 +22,7 @@ function UploadIcon() {
   );
 }
 
-function ExtratoTab() {
+function ExtratoTab({lancamentos, participants, participantColors}) {
   const inputRef = useRef(null);
   const [fileName, setFileName] = useState(null);
 
@@ -58,25 +59,17 @@ function ExtratoTab() {
           onChange={handleChange}
         />
       </div>
-
-      <div className={styles.empty}>
-        {fileName ? (
-          <>
-            <p className={styles.emptyTitle}>Arquivo recebido</p>
-            <p className={styles.emptyText}>{fileName}</p>
-            <p className={styles.emptyHint}>
-              (simulação — nenhum dado foi processado ainda)
-            </p>
-          </>
-        ) : (
-          <>
-            <p className={styles.emptyTitle}>Nenhum extrato carregado</p>
-            <p className={styles.emptyText}>
-              Faça upload do extrato do seu cartão para visualizar os lançamentos.
-            </p>
-          </>
-        )}
-      </div>
+      <ul className={styles.list}>
+        {lancamentos.map((item, index) => (
+          <LancamentoRow
+            key={item.id}
+            item={item}
+            index={index}
+            participants={participants}
+            participantColors={participantColors}
+          />
+        ))}
+      </ul>
     </section>
   );
 }

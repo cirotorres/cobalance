@@ -5,9 +5,11 @@ import Tabs from '../../components/Tabs/Tabs';
 import LancamentosTab from './LancamentosTab/LancamentosTab';
 import ExtratoTab from './ExtratoTab/ExtratoTab';
 import ParticipantesTab from './ParticipantesTab/ParticipantesTab';
+import BalancoTab from './BalancoTab/BalancoTab';
 import styles from './Home.module.css';
 import api from '../../services/api';
 import { listParticipants } from '../../services/participantService';
+import { listFinances } from '../../services/financialService'
 
 
 const TABS = [
@@ -27,6 +29,8 @@ function Home () {
     const [participants, setParticipants] = useState([]);
 
     const [participantColors, setParticipantColors] = useState({});
+
+    const [lancamentos, setLancamentos] = useState([]);
 
     const navigation = useNavigate()
 
@@ -78,6 +82,24 @@ function Home () {
   fetchParticipants();
 }, []);
 
+
+  useEffect( () => {
+      const fetchFinances = async () =>{
+          try{
+              const data = await listFinances();
+
+              const data_filt = data.filter(
+                (finance) => finance.source === "extrato"
+              );
+
+              setLancamentos(data_filt);
+          } catch (error) {
+              console.error(error)
+          };
+      }
+      fetchFinances();
+      }, [])
+
 return (
 
     <AppLayout userName={userName} onLogout={logout}>
@@ -86,18 +108,29 @@ return (
 
         <div className={styles.panel}>
           {activeTab === 'lancamentos' && (
-            <LancamentosTab participantColors={participantColors} />
+            <LancamentosTab
+              participantColors={participantColors}
+              />
           )}
-          {activeTab === 'extrato' && <ExtratoTab />}
+          {activeTab === 'extrato' && (
+            <ExtratoTab
+              lancamentos={lancamentos}
+              participantColors={participantColors}
+              participants={participants}
+              />
+          )}
           {activeTab === 'participantes' && (
             <ParticipantesTab
               participants={participants}
               participantColors={participantColors}
               setParticipantColors={setParticipantColors}
-            />
+              />
           )}
           {activeTab === 'balanco' && (
-            <div className={styles.placeholder}>Em breve — Balanço</div>
+            <BalancoTab
+              participants={participants}
+              participantColors={participantColors}
+              />
           )}
         </div>
       </div>

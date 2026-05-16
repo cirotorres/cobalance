@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import  { useEffect, useRef, useState } from 'react';
 import styles from './LancamentoRow.module.css';
 
 
@@ -39,6 +39,25 @@ function TrashIcon() {
       <path d="M10 11v6" />
       <path d="M14 11v6" />
       <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+    </svg>
+  );
+}
+
+function CheckCircleIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
     </svg>
   );
 }
@@ -97,7 +116,10 @@ function hexToRgba(hex, alpha) {
 
 function LancamentoRow({ item, index, participants, participantColors = {} }) {
   const [expanded, setExpanded] = useState(false);
-  const isOutflow = item.amount < 0;
+  const [participantPickerOpen, setParticipantPickerOpen] = useState(false);
+  const [isReviewed, setIsReviewed] = useState(!!item.is_reviewed);
+  const leftRef = useRef(null);
+  const isOutflow = item.participant_id === null;
 
   const participant = participants.find(
     (p) => p.id === item.participant_id
@@ -109,14 +131,43 @@ function LancamentoRow({ item, index, participants, participantColors = {} }) {
 
   const stop = (e) => e.stopPropagation();
 
+  useEffect(() => {
+    if (!participantPickerOpen) return;
+    const handleClickOutside = (e) => {
+      if (leftRef.current && !leftRef.current.contains(e.target)) {
+        setParticipantPickerOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [participantPickerOpen]);
+
+  const handlePickParticipant = (p) => {
+    // mock — futura chamada à API de edição do lançamento
+    console.log('update lancamento participant', item.id, '->', p ? p.id : null, p?.name ?? null);
+    setParticipantPickerOpen(false);
+  };
+
+  const handleToggleReview = (e) => {
+    stop(e);
+    const next = !isReviewed;
+    setIsReviewed(next);
+    // mock — futura chamada à API
+    console.log('toggle reviewed', item.id, '->', next);
+  };
+
   const participantColor = participant ? participantColors[participant.id] : null;
+
   const rowStyle = { '--i': index };
   if (participantColor) {
     rowStyle.backgroundColor = hexToRgba(participantColor, 0.30);
   }
 
   return (
-    <li className={styles.row} style={rowStyle}>
+    <li
+      className={`${styles.row} ${participantPickerOpen ? styles.rowActive : ''}`}
+      style={rowStyle}
+    >
       <div
         type="button"
         className={`${styles.summary} ${expanded ? styles.summaryOpen : ''}`}
@@ -125,11 +176,61 @@ function LancamentoRow({ item, index, participants, participantColors = {} }) {
         aria-controls={panelId}
       >
         <div className={styles.left}>
-          <span
-            className={`${styles.badge} ${isOutflow ? styles.badgeOut : styles.badgeIn}`}
-          >
-            {participant ? participant.name : '—'}
-          </span>
+          <div className={styles.badgeWrap} ref={leftRef} onClick={stop}>
+            <button
+              type="button"
+              className={`${styles.badge} ${isOutflow ? styles.badgeOut : styles.badgeIn}`}
+              aria-haspopup="listbox"
+              aria-expanded={participantPickerOpen}
+              onClick={(e) => {
+                stop(e);
+                setParticipantPickerOpen((v) => !v);
+              }}
+            >
+              {participant ? participant.name : '—'}
+            </button>
+
+            {participantPickerOpen && (
+              <div
+                className={styles.participantPicker}
+                role="listbox"
+                aria-label="Selecionar participante"
+              >
+                {participants.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={styles.participantOption}
+                    role="option"
+                    aria-selected={participant?.id === p.id}
+                    onClick={(e) => {
+                      stop(e);
+                      handlePickParticipant(p);
+                    }}
+                  >
+                    <span
+                      className={styles.participantSwatch}
+                      style={{ background: participantColors[p.id] || 'var(--color-surface-alt)' }}
+                    />
+                    <span className={styles.participantName}>{p.name}</span>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className={`${styles.participantOption} ${styles.participantClear}`}
+                  role="option"
+                  aria-selected={!participant}
+                  onClick={(e) => {
+                    stop(e);
+                    handlePickParticipant(null);
+                  }}
+                >
+                  <span className={styles.participantSwatch} />
+                  <span className={styles.participantName}>Sem participante</span>
+                </button>
+              </div>
+            )}
+          </div>
           <div className={styles.meta}>
             <span className={styles.desc}>{item.description}</span>
             <span className={styles.date}>{formatDate(item.transaction_date)}</span>
@@ -144,6 +245,16 @@ function LancamentoRow({ item, index, participants, participantColors = {} }) {
           </span>
 
           <div className={styles.actions} onClick={stop}>
+            <button
+              type="button"
+              className={`${styles.iconBtn} ${isReviewed ? styles.iconBtnActive : ''}`}
+              aria-label={isReviewed ? 'Marcar como não revisado' : 'Marcar como revisado'}
+              aria-pressed={isReviewed}
+              title={isReviewed ? 'Revisado' : 'Não revisado'}
+              onClick={handleToggleReview}
+            >
+              <CheckCircleIcon />
+            </button>
             <span
               className={`${styles.chevron} ${expanded ? styles.chevronOpen : ''}`}
               aria-hidden="true"
@@ -198,7 +309,7 @@ function LancamentoRow({ item, index, participants, participantColors = {} }) {
             )}
             <div className={styles.detail}>
               <dt>Revisado</dt>
-              <dd>{item.is_reviewed ? 'Sim' : 'Não'}</dd>
+              <dd>{isReviewed ? 'Sim' : 'Não'}</dd>
             </div>
             <div className={styles.detail}>
               <dt>Criado em</dt>

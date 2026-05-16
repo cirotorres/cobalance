@@ -65,7 +65,7 @@ function XIcon() {
 function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
   const [participants, setParticipants] = useState([]);
   const [createNewRow, setCreateNewRow] = useState(false);
-  const [newParticipant, setNewParticipant] = useState('');
+  const [newParticipant, setNewParticipant] = useState(null);
 
 
 
@@ -115,7 +115,7 @@ useEffect(() => {
     try{
       await adicionarParticipante(newParticipant)
       await fetchParticipants();
-      setNewParticipant('');
+      setNewParticipant(null);
       setCreateNewRow(false);
       console.log('Participante adicionado.')
 
@@ -169,6 +169,7 @@ useEffect(() => {
                         placeholder='Nome' 
                         value={newParticipant}
                         onChange={(e) => setNewParticipant(e.target.value)}
+                        required
                         />
                     </div>
                     <button
