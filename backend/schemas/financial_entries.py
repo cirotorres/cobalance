@@ -32,7 +32,7 @@ class FinancialEntryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class FinancialEntryUpdate(BaseModel):
-    participant_id: Optional[str] = None
+    participant_id: Optional[int] = None
     amount: Optional[float] = None
     description: Optional[str] = None
     source: Optional[str] = None
