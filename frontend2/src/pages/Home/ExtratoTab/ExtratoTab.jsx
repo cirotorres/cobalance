@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import styles from './ExtratoTab.module.css';
 import LancamentoRow from '../LancamentosTab/LancamentoRow';
+import FinancesFilters from '../FinancesFilters/FinancesFilters';
+import { filterFinances, EMPTY_FILTERS } from '../FinancesFilters/filterFinances';
 
 function UploadIcon() {
   return (
@@ -22,9 +24,10 @@ function UploadIcon() {
   );
 }
 
-function ExtratoTab({lancamentos, participants, participantColors}) {
+function ExtratoTab({lancamentos, participants, participantColors, refreshfinances}) {
   const inputRef = useRef(null);
   const [fileName, setFileName] = useState(null);
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
 
   const handleClick = () => {
     inputRef.current?.click();
@@ -59,17 +62,48 @@ function ExtratoTab({lancamentos, participants, participantColors}) {
           onChange={handleChange}
         />
       </div>
-      <ul className={styles.list}>
-        {lancamentos.map((item, index) => (
-          <LancamentoRow
-            key={item.id}
-            item={item}
-            index={index}
-            participants={participants}
-            participantColors={participantColors}
-          />
-        ))}
-      </ul>
+      <FinancesFilters
+        finances={lancamentos}
+        participants={participants}
+        participantColors={participantColors}
+        value={filters}
+        onChange={setFilters}
+      />
+
+      {(() => {
+        const filtered = filterFinances(lancamentos, filters);
+        if (lancamentos.length > 0 && filtered.length === 0) {
+          return (
+            <div className={styles.empty}>
+              Nenhum lançamento corresponde aos filtros aplicados.
+            </div>
+          );
+        }
+        return (
+          <ul className={styles.list}>
+            {[...filtered]
+              .sort((a, b) => {
+                if (!!a.is_reviewed !== !!b.is_reviewed) {
+                  return a.is_reviewed ? 1 : -1;
+                }
+                if (a.transaction_date !== b.transaction_date) {
+                  return a.transaction_date < b.transaction_date ? -1 : 1;
+                }
+                return a.id - b.id;
+              })
+              .map((item, index) => (
+                <LancamentoRow
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  participants={participants}
+                  participantColors={participantColors}
+                  refreshfinances={refreshfinances}
+                />
+              ))}
+          </ul>
+        );
+      })()}
     </section>
   );
 }

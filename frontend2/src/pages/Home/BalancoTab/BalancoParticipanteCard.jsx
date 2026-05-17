@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import BalancoLancamentoRow from './BalancoLancamentoRow';
 import styles from './BalancoParticipanteCard.module.css';
+import { editFinances } from '../../../services/financialService';
 
 function ChevronIcon() {
   return (
@@ -59,9 +60,9 @@ function BalancoParticipanteCard({
   const total = items.reduce((sum, it) => sum + Number(it.amount || 0), 0);
   const panelId = `balanco-panel-${participant.id}`;
 
-  const handleUncheck = (id) => {
+  const handleUncheck = async (id) => {
+    await editFinances(id, { is_reviewed: false });
     if (onToggleReview) onToggleReview(id, false);
-    // mock — futura chamada à API de update
     console.log('uncheck from balanco', id);
   };
 

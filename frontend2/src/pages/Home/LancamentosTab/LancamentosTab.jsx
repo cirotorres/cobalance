@@ -3,6 +3,8 @@ import LancamentoRow from './LancamentoRow';
 import styles from './LancamentosTab.module.css';
 import { listFinances } from '../../../services/financialService'
 import { listParticipants } from '../../../services/participantService'
+import FinancesFilters from '../FinancesFilters/FinancesFilters';
+import { filterFinances, EMPTY_FILTERS } from '../FinancesFilters/filterFinances';
 
 function PlusIcon() {
   return (
@@ -29,20 +31,25 @@ function LancamentosTab({ participantColors = {} }) {
 
   const [finances, setFinances] = useState([]);
 
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+
+
+
+  const fetchFinances = async () =>{
+    try{
+        const data = await listFinances();
+
+        const data_filt = data.filter(
+          (finance) => finance.source === "credito"
+        );
+
+        setFinances(data_filt);
+    } catch (error) {
+        console.error(error)
+    };
+}
   useEffect( () => {
-      const fetchFinances = async () =>{
-          try{
-              const data = await listFinances();
-
-              const data_filt = data.filter(
-                (finance) => finance.source === "credito"
-              );
-
-              setFinances(data_filt);
-          } catch (error) {
-              console.error(error)
-          };
-      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchFinances();
       }, [])
 
@@ -78,17 +85,48 @@ function LancamentosTab({ participantColors = {} }) {
         </button>
       </div>
 
-      <ul className={styles.list}>
-        {finances.map((item, index) => (
-          <LancamentoRow
-            key={item.id}
-            item={item}
-            index={index}
-            participants={participants}
-            participantColors={participantColors}
-          />
-        ))}
-      </ul>
+      <FinancesFilters
+        finances={finances}
+        participants={participants}
+        participantColors={participantColors}
+        value={filters}
+        onChange={setFilters}
+      />
+
+      {(() => {
+        const filtered = filterFinances(finances, filters);
+        if (finances.length > 0 && filtered.length === 0) {
+          return (
+            <div className={styles.empty}>
+              Nenhum lançamento corresponde aos filtros aplicados.
+            </div>
+          );
+        }
+        return (
+          <ul className={styles.list}>
+            {[...filtered]
+              .sort((a, b) => {
+                if (!!a.is_reviewed !== !!b.is_reviewed) {
+                  return a.is_reviewed ? 1 : -1;
+                }
+                if (a.transaction_date !== b.transaction_date) {
+                  return a.transaction_date < b.transaction_date ? -1 : 1;
+                }
+                return a.id - b.id;
+              })
+              .map((item, index) => (
+                <LancamentoRow
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  participants={participants}
+                  participantColors={participantColors}
+                  refreshfinances={fetchFinances}
+                />
+              ))}
+          </ul>
+        );
+      })()}
     </section>
   );
 }

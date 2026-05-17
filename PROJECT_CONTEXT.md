@@ -10,7 +10,7 @@
 
 **Propósito:** Registrar, classificar e acompanhar gastos — incluindo gastos compartilhados entre participantes (ex.: divisão de fatura de cartão de crédito). O usuário cadastra participantes e lança despesas vinculadas a cada um, podendo consultar totais por participante e ter um panorama das suas finanças.
 
-**Estado atual:** Backend funcional em nível MVP com base sólida (auth, CRUDs, importação CSV, integração com LLM). Frontend ainda em fase inicial — apenas scaffold de login. Próximo grande foco: desenvolvimento do frontend com boa UX.
+**Estado atual:** Backend funcional em nível MVP com base sólida (auth, CRUDs, importação CSV, integração com LLM). Frontend principal (`frontend2/`, Vite) já tem Home com tabs (Lançamentos, Extrato, Participantes, Balanço, Agente), filtros, integração com API e chat com o agente LLM. O `frontend/` original (CRA) está abandonado.
 
 **Princípios:** Simplicidade, evolução gradual, fonte única de dados, utilidade real (não construir features hipotéticas).
 
@@ -29,8 +29,9 @@
 | Validação | Pydantic 2 |
 | CSV | pandas |
 | LLM | Ollama + langchain-ollama |
-| Frontend | React 19 (CRA) |
-| Web server (front) | Nginx alpine (com proxy `/api/*` → backend) |
+| Frontend ativo | React 19 + Vite (`frontend2/`) |
+| Frontend legado | React 19 + CRA (`frontend/`) — não usar |
+| Web server (front legado) | Nginx alpine (com proxy `/api/*` → backend) |
 | Orquestração | Docker Compose |
 
 ---
@@ -38,10 +39,10 @@
 ## 3. Estrutura de Pastas (raiz)
 
 ```
-Proj_Pessoal/
+BookHub/
 ├── backend/                         # API FastAPI
-├── frontend/                        # React (foco atual de desenvolvimento)
-├── frontend2/                       # IGNORAR — apenas testes
+├── frontend2/                       # React + Vite — FRONTEND ATIVO
+├── frontend/                        # React + CRA — LEGADO, não usar
 ├── docker-compose.yml
 ├── Makefile                         # atalhos para docker / migrations
 ├── DOCKER.md
@@ -148,20 +149,47 @@ backend/
 
 ## 5. Frontend (estado atual)
 
-**Estado:** Esqueleto inicial. Apenas página de login com inputs de email/senha (ainda sem chamada à API).
+**Estado:** `frontend2/` (Vite + React 19) é o frontend ativo. Possui auth (login/signup), routing com rota protegida, integração completa com a API e UI com tema próprio via CSS variables (sem lib de UI externa).
 
 ```
-frontend/
-├── package.json             # React 19 + react-scripts (CRA)
-├── Dockerfile               # multistage: node 20-alpine → nginx alpine
-├── nginx.conf               # SPA fallback + proxy /api/* → backend:8000
-└── src/
-    ├── index.js
-    ├── App.js
-    └── pages/login.js
+frontend2/src/
+├── App.jsx
+├── main.jsx
+├── index.css                       # design tokens (CSS variables)
+├── routes/
+│   ├── index.jsx                   # react-router-dom v6
+│   └── ProtectedRoute.jsx          # gate por token em localStorage
+├── services/
+│   ├── api.jsx                     # axios instance com Authorization header
+│   ├── authService.jsx
+│   ├── participantService.jsx
+│   ├── financialService.jsx        # listFinances, editFinances
+│   └── agenteService.jsx           # POST /agente
+├── components/
+│   ├── AppLayout/                  # shell com Header/Sidebar/Footer
+│   ├── Header/, Sidebar/, Footer/
+│   └── Tabs/
+└── pages/
+    ├── Login/, Signin/
+    └── Home/
+        ├── Home.jsx                # orquestra tabs e estado compartilhado
+        ├── LancamentosTab/         # source="credito"
+        ├── ExtratoTab/             # source="extrato"
+        ├── ParticipantesTab/
+        ├── BalancoTab/             # agrupa por participant; uncheck PATCH no banco
+        ├── AgenteTab/              # chat com /agente; conversa persiste por troca de tab
+        └── FinancesFilters/        # filtros (mês/dia/participante) compartilhados
 ```
 
-**Ainda não há:** routing, gerenciador de estado, biblioteca de UI, integração com API, design system. Tudo isso será definido conforme o frontend for desenvolvido — foco em UX prática.
+### 5.1 Padrões estabelecidos
+
+- **Fonte da verdade = backend.** Após mutações (PATCH em finance, criar/editar participant), o `Home.jsx` re-busca os dados (`useEffect([activeTab])` para `fetchParticipants` e `fetchFinancesExtrato`).
+- **`refreshfinances`** é a prop convencional passada do pai para as rows quando elas precisam disparar um refetch.
+- **Estado local em rows** (`useState(item.is_reviewed)`) precisa de `useEffect([item.is_reviewed])` para ressincronizar após refetch — `useState` só inicializa uma vez.
+- **Sort de finances:** sempre 3 níveis — `is_reviewed → transaction_date asc → id asc`. O último critério (id) é desempate determinístico, porque o backend não garante ordem secundária.
+- **Filtros:** componente `FinancesFilters` reaproveitado por Lançamentos e Extrato. Filtragem 100% no frontend (cumulativa: mês + dia + participante). Mostra apenas valores que existem nos dados.
+- **AgenteTab:** estado da conversa (`messages`, `input`) elevado ao `Home.jsx` → sobrevive a troca de tab. Não há persistência cross-reload (foi decisão deliberada).
+- **Design system:** sem biblioteca. Tudo via CSS modules + variáveis em `index.css` (`--color-accent`, `--radius-md`, `--shadow-soft`, etc.). Componentes seguem padrão visual de pills/cards com bordas suaves.
 
 ---
 
@@ -171,7 +199,7 @@ frontend/
 
 - **backend** — build `./backend`, porta `8000:8000`, volume `./backend:/app` (hot reload), depende do postgres
 - **postgres** — `postgres:15-alpine`, porta `5433:5432`, volume nomeado `postgres_data`
-- **frontend** — *atualmente comentado* (será habilitado quando o front estiver pronto): build `./frontend`, porta `3000:3000`, depende do backend, env `REACT_APP_API_URL=http://localhost:8000`
+- **frontend (legado)** — entrada do `frontend/` (CRA), atualmente sem uso ativo. O `frontend2/` (Vite) é rodado em dev manualmente (`npm run dev`) e ainda não tem serviço no compose.
 
 Todos os serviços usam `.env` na raiz. Comunicação interna por nome de serviço (ex.: `http://backend:8000`).
 

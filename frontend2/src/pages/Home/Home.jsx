@@ -6,6 +6,7 @@ import LancamentosTab from './LancamentosTab/LancamentosTab';
 import ExtratoTab from './ExtratoTab/ExtratoTab';
 import ParticipantesTab from './ParticipantesTab/ParticipantesTab';
 import BalancoTab from './BalancoTab/BalancoTab';
+import AgenteTab from './AgenteTab/AgenteTab';
 import styles from './Home.module.css';
 import api from '../../services/api';
 import { listParticipants } from '../../services/participantService';
@@ -17,6 +18,7 @@ const TABS = [
   { id: 'extrato', label: 'Extrato bancário' },
   { id: 'participantes', label: 'Participantes' },
   { id: 'balanco', label: 'Balanço' },
+  { id: 'agente', label: 'Agente' },
 ];
 
 
@@ -31,6 +33,10 @@ function Home () {
     const [participantColors, setParticipantColors] = useState({});
 
     const [lancamentos, setLancamentos] = useState([]);
+
+    const [agentMessages, setAgentMessages] = useState([]);
+
+    const [agentInput, setAgentInput] = useState('');
 
     const navigation = useNavigate()
 
@@ -57,48 +63,47 @@ function Home () {
     },[])
 
 
-    useEffect(() => {
   const fetchParticipants = async () => {
     try {
       const data = await listParticipants();
-
       setParticipants(data);
 
       const colors = {};
-
       data.forEach((participant) => {
         if (participant.color) {
           colors[participant.id] = participant.color;
         }
       });
-
       setParticipantColors(colors);
-
     } catch (error) {
       console.error(error);
     }
   };
 
-  fetchParticipants();
-}, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchParticipants();
+  }, [activeTab]);
 
 
-  useEffect( () => {
-      const fetchFinances = async () =>{
-          try{
-              const data = await listFinances();
+  const fetchFinancesExtrato = async () => {
+    try {
+      const data = await listFinances();
+      const data_filt = data.filter(
+        (finance) => finance.source === "extrato"
+      );
+      setLancamentos(data_filt);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-              const data_filt = data.filter(
-                (finance) => finance.source === "extrato"
-              );
-
-              setLancamentos(data_filt);
-          } catch (error) {
-              console.error(error)
-          };
-      }
-      fetchFinances();
-      }, [])
+  useEffect(() => {
+    if (activeTab === 'extrato') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchFinancesExtrato();
+    }
+  }, [activeTab]);
 
 return (
 
@@ -117,6 +122,7 @@ return (
               lancamentos={lancamentos}
               participantColors={participantColors}
               participants={participants}
+              refreshfinances={fetchFinancesExtrato}
               />
           )}
           {activeTab === 'participantes' && (
@@ -131,6 +137,14 @@ return (
               participants={participants}
               participantColors={participantColors}
               />
+          )}
+          {activeTab === 'agente' && (
+            <AgenteTab
+              messages={agentMessages}
+              setMessages={setAgentMessages}
+              input={agentInput}
+              setInput={setAgentInput}
+            />
           )}
         </div>
       </div>

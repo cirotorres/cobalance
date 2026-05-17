@@ -1,5 +1,6 @@
 import  { useEffect, useRef, useState } from 'react';
 import styles from './LancamentoRow.module.css';
+import { editFinances } from '../../../services/financialService'
 
 
 function EditIcon() {
@@ -114,12 +115,17 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function LancamentoRow({ item, index, participants, participantColors = {} }) {
+function LancamentoRow({ item, index, participants, participantColors = {}, refreshfinances }) {
   const [expanded, setExpanded] = useState(false);
   const [participantPickerOpen, setParticipantPickerOpen] = useState(false);
   const [isReviewed, setIsReviewed] = useState(!!item.is_reviewed);
   const leftRef = useRef(null);
   const isOutflow = item.participant_id === null;
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsReviewed(!!item.is_reviewed);
+  }, [item.is_reviewed]);
 
   const participant = participants.find(
     (p) => p.id === item.participant_id
@@ -142,18 +148,20 @@ function LancamentoRow({ item, index, participants, participantColors = {} }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [participantPickerOpen]);
 
-  const handlePickParticipant = (p) => {
-    // mock — futura chamada à API de edição do lançamento
+  const handlePickParticipant = async (p) => {
+    await editFinances(item.id, { participant_id: p ? p.id : null });
     console.log('update lancamento participant', item.id, '->', p ? p.id : null, p?.name ?? null);
     setParticipantPickerOpen(false);
+    refreshfinances();
   };
 
-  const handleToggleReview = (e) => {
+  const handleToggleReview = async (e) => {
     stop(e);
     const next = !isReviewed;
     setIsReviewed(next);
-    // mock — futura chamada à API
+    await editFinances(item.id, { is_reviewed: next });
     console.log('toggle reviewed', item.id, '->', next);
+    refreshfinances?.();
   };
 
   const participantColor = participant ? participantColors[participant.id] : null;
