@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import LancamentoRow from './LancamentoRow';
 import styles from './LancamentosTab.module.css';
-import { listFinances } from '../../../services/financialService'
+import { listFinances, addFinance } from '../../../services/financialService'
 import { listParticipants } from '../../../services/participantService'
 import FinancesFilters from '../FinancesFilters/FinancesFilters';
 import { filterFinances, EMPTY_FILTERS } from '../FinancesFilters/filterFinances';
@@ -25,6 +25,78 @@ function PlusIcon() {
   );
 }
 
+function CheckIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+const SOURCE_OPTIONS = [
+  { value: 'credito', label: 'Crédito' },
+  { value: 'debito', label: 'Débito' },
+  { value: 'pix', label: 'Pix' },
+];
+
+const MANUAL_SOURCES = SOURCE_OPTIONS.map((s) => s.value);
+
+const todayIso = () => {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+
+const addMonthsIso = (iso, monthsToAdd) => {
+  const [y, m, d] = iso.split('-').map(Number);
+  const targetMonthZero = (m - 1) + monthsToAdd;
+  const targetYear = y + Math.floor(targetMonthZero / 12);
+  const targetMonth = ((targetMonthZero % 12) + 12) % 12;
+  const lastDay = new Date(targetYear, targetMonth + 1, 0).getDate();
+  const day = Math.min(d, lastDay);
+  return `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+};
+
+const emptyDraft = () => ({
+  description: '',
+  amount: '',
+  transaction_date: todayIso(),
+  participant_id: '',
+  source: 'credito',
+  installments: '1',
+});
+
 function LancamentosTab({ participantColors = {} }) {
 
   const [participants, setParticipants] = useState([])
@@ -33,6 +105,12 @@ function LancamentosTab({ participantColors = {} }) {
 
   const [filters, setFilters] = useState(EMPTY_FILTERS);
 
+  const [createOpen, setCreateOpen] = useState(false);
+
+  const [draft, setDraft] = useState(emptyDraft());
+
+  const [saving, setSaving] = useState(false);
+
 
 
   const fetchFinances = async () =>{
@@ -40,7 +118,7 @@ function LancamentosTab({ participantColors = {} }) {
         const data = await listFinances();
 
         const data_filt = data.filter(
-          (finance) => finance.source === "credito"
+          (finance) => MANUAL_SOURCES.includes(finance.source)
         );
 
         setFinances(data_filt);
@@ -58,7 +136,6 @@ function LancamentosTab({ participantColors = {} }) {
           try{
               const data = await listParticipants();
               setParticipants(data);
-              console.log(data)
           } catch (error) {
               console.error(error)
           };
@@ -67,8 +144,48 @@ function LancamentosTab({ participantColors = {} }) {
       }, [])
 
 
-  const handleAdd = () => {
-    console.log('add lancamento');
+  const handleOpenCreate = () => {
+    setDraft(emptyDraft());
+    setCreateOpen(true);
+  };
+
+  const handleCancelCreate = () => {
+    setCreateOpen(false);
+    setDraft(emptyDraft());
+  };
+
+  const handleSubmitCreate = async (e) => {
+    e.preventDefault();
+    const amountNumber = parseFloat(draft.amount);
+    const installmentsTotal = Math.max(1, parseInt(draft.installments, 10) || 1);
+    if (!draft.description.trim() || Number.isNaN(amountNumber) || !draft.transaction_date) {
+      return;
+    }
+    setSaving(true);
+    try {
+      const basePayload = {
+        participant_id: draft.participant_id === '' ? null : Number(draft.participant_id),
+        amount: amountNumber,
+        description: draft.description.trim(),
+        source: draft.source,
+        is_reviewed: false,
+        installment_total: installmentsTotal,
+      };
+      for (let i = 0; i < installmentsTotal; i++) {
+        await addFinance({
+          ...basePayload,
+          transaction_date: addMonthsIso(draft.transaction_date, i),
+          installment_number: i + 1,
+        });
+      }
+      await fetchFinances();
+      setCreateOpen(false);
+      setDraft(emptyDraft());
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -78,7 +195,7 @@ function LancamentosTab({ participantColors = {} }) {
         <button
           type="button"
           className={styles.addBtn}
-          onClick={handleAdd}
+          onClick={handleOpenCreate}
           aria-label="Adicionar lançamento"
         >
           <PlusIcon />
@@ -104,7 +221,12 @@ function LancamentosTab({ participantColors = {} }) {
         }
         return (
           <ul className={styles.list}>
-            {[...filtered]
+            { filtered == 0 ? (
+              <div className={styles.emptyLanca}>
+                Nenhum Lançamento. Clique no ícone acima e adicione um lançamento.
+              </div>
+            ) : (
+            [...filtered]
               .sort((a, b) => {
                 if (!!a.is_reviewed !== !!b.is_reviewed) {
                   return a.is_reviewed ? 1 : -1;
@@ -123,10 +245,118 @@ function LancamentosTab({ participantColors = {} }) {
                   participantColors={participantColors}
                   refreshfinances={fetchFinances}
                 />
-              ))}
+              )))}
           </ul>
         );
       })()}
+
+      {createOpen && (
+        <form className={styles.createForm} onSubmit={handleSubmitCreate}>
+          <div className={styles.createGrid}>
+            <label className={styles.createField}>
+              <span className={styles.createLabel}>Descrição</span>
+              <input
+                type="text"
+                className={styles.createInput}
+                value={draft.description}
+                onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
+                required
+                autoFocus
+                disabled={saving}
+              />
+            </label>
+            <label className={styles.createField}>
+              <span className={styles.createLabel}>Valor</span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                className={styles.createInput}
+                value={draft.amount}
+                onChange={(e) => setDraft((d) => ({ ...d, amount: e.target.value }))}
+                required
+                disabled={saving}
+              />
+            </label>
+            <label className={styles.createField}>
+              <span className={styles.createLabel}>Data</span>
+              <input
+                type="date"
+                className={styles.createInput}
+                value={draft.transaction_date}
+                onChange={(e) => setDraft((d) => ({ ...d, transaction_date: e.target.value }))}
+                required
+                disabled={saving}
+              />
+            </label>
+            <label className={styles.createField}>
+              <span className={styles.createLabel}>Parcelas</span>
+              <input
+                type="number"
+                min="1"
+                step="1"
+                className={styles.createInput}
+                value={draft.installments}
+                onChange={(e) => setDraft((d) => ({ ...d, installments: e.target.value }))}
+                disabled={saving}
+              />
+            </label>
+            <label className={styles.createField}>
+              <span className={styles.createLabel}>Participante</span>
+              <select
+                className={styles.createInput}
+                value={draft.participant_id}
+                onChange={(e) => setDraft((d) => ({ ...d, participant_id: e.target.value }))}
+                disabled={saving}
+              >
+                <option value="">Sem participante</option>
+                {participants.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className={styles.createSourceRow}>
+            <span className={styles.createLabel}>Tipo</span>
+            <div className={styles.sourceOptions} role="radiogroup" aria-label="Tipo">
+              {SOURCE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={draft.source === opt.value}
+                  className={`${styles.sourceChip} ${draft.source === opt.value ? styles.sourceChipActive : ''}`}
+                  onClick={() => setDraft((d) => ({ ...d, source: opt.value }))}
+                  disabled={saving}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.createActions}>
+            <button
+              type="button"
+              className={`${styles.createBtn} ${styles.createCancel}`}
+              onClick={handleCancelCreate}
+              disabled={saving}
+              aria-label="Cancelar"
+            >
+              <XIcon />
+            </button>
+            <button
+              type="submit"
+              className={`${styles.createBtn} ${styles.createConfirm}`}
+              disabled={saving}
+              aria-label="Confirmar"
+            >
+              <CheckIcon />
+            </button>
+          </div>
+        </form>
+      )}
     </section>
   );
 }

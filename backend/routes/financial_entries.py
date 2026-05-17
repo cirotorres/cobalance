@@ -1,5 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from sqlalchemy import extract
 from sqlalchemy.orm import Session
 from helpers.apply_filters import apply_filters
 from services.import_csv_nu import import_financial_csv
@@ -33,13 +34,14 @@ def create_financial_entry(
         installment_total = financial_data.installment_total,
     )
 
-    participant_exist = db.query(Participant).filter(
-        Participant.user_id == current_user.id,
-        Participant.id == financial_data.participant_id
-        ).first()
+    if financial_data.participant_id is not None:
+        participant_exist = db.query(Participant).filter(
+            Participant.user_id == current_user.id,
+            Participant.id == financial_data.participant_id
+            ).first()
 
-    if not participant_exist:
-        raise HTTPException(status_code=404, detail="Participante não listado.")
+        if not participant_exist:
+            raise HTTPException(status_code=404, detail="Participante não listado.")
 
     db.add(new_financial)
     db.commit()
@@ -170,6 +172,37 @@ def import_csv(
             "message": "Importação concluída",
             "imported": total
         }
+
+
+@router.delete("/by-month")
+def delete_extrato_by_month(
+    month: str,
+    db: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        year_str, month_str = month.split("-")
+        year_int = int(year_str)
+        month_int = int(month_str)
+        if not (1 <= month_int <= 12):
+            raise ValueError
+    except (ValueError, AttributeError):
+        raise HTTPException(
+            status_code=400,
+            detail="Formato inválido para month. Use YYYY-MM"
+        )
+
+    query = db.query(FinancialEntry).filter(
+        FinancialEntry.user_id == current_user.id,
+        FinancialEntry.source == "extrato",
+        extract('year', FinancialEntry.transaction_date) == year_int,
+        extract('month', FinancialEntry.transaction_date) == month_int,
+    )
+
+    deleted = query.delete(synchronize_session=False)
+    db.commit()
+
+    return {"deleted": deleted, "month": month}
 
 
 @router.get("/{financial_id}", response_model=FinancialEntryResponse)

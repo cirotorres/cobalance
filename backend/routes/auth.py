@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 # from fastapi.security import OAuth2PasswordRequestForm
-from schemas.user import LoginRequest
+from core.config import ALGORITHM, SECRET_KEY
+from schemas.user import LoginRequest, RefreshTokenRequest
 from sqlalchemy.orm import Session
 from db.database import get_session
 from schemas.user import TokenResponse
 from models.user import User
-from core.security import verify_password, create_acess_token, get_current_user, create_refresh_token
+from core.security import verify_password, create_access_token, get_current_user, create_refresh_token
+import jwt
 
 router = APIRouter()
 
@@ -31,7 +33,7 @@ def login(login_data: LoginRequest, db: Session = Depends(get_session)):
     if not verify_password(login_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
     
-    acess_token = create_acess_token(
+    access_token = create_access_token(
         {
             'sub': user.email,
             'id': user.id,
@@ -48,26 +50,35 @@ def login(login_data: LoginRequest, db: Session = Depends(get_session)):
     
 
     return {
-        "access_token": acess_token,
+        "access_token": access_token,
         "refresh_token": refresh_token,
         "token_type": "Bearer"
     }
 
 
-# @router.post("/refresh")
-# def refresh_login(refresh_token: str, db: Session = Depends(get_session)):
+@router.post("/refresh")
+def refresh_login(refresh_data: RefreshTokenRequest, db: Session = Depends(get_session)):
+    
+    payload = jwt.decode(
+        refresh_data.refresh_token,
+        SECRET_KEY,
+        algorithms=[ALGORITHM]
+    )
 
-#     new_acess_token = create_acess_token(
-#         {
-#             'sub': user.email,
-#             'id': user.id,
-#         }
-#     )
+    user_id = payload.get("id")
 
-#     return {
-#         "acess_token": new_acess_token,
-#         "token_type": "Bearer"
-#     }
+    user = db.query(User).filter( User.id == user_id).first()
+
+    new_access_token = create_access_token(
+        {
+            'sub': user.email,
+            'id': user.id,
+        }
+    )
+
+    return {
+        "access_token": new_access_token,
+    }
 
 
 @router.get("/me")

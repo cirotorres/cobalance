@@ -42,6 +42,7 @@ function Home () {
 
     const logout = () => {
     localStorage.removeItem("token")
+    localStorage.removeItem("refresh_token")
     navigation("/")
     }
 

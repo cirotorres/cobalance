@@ -1,6 +1,6 @@
 import  { useEffect, useRef, useState } from 'react';
 import styles from './LancamentoRow.module.css';
-import { editFinances } from '../../../services/financialService'
+import { editFinances, deleteFinance } from '../../../services/financialService'
 
 
 function EditIcon() {
@@ -115,12 +115,26 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function LancamentoRow({ item, index, participants, participantColors = {}, refreshfinances }) {
+function LancamentoRow({ item, index, participants, participantColors = {}, refreshfinances, variant = 'lancamento' }) {
   const [expanded, setExpanded] = useState(false);
   const [participantPickerOpen, setParticipantPickerOpen] = useState(false);
   const [isReviewed, setIsReviewed] = useState(!!item.is_reviewed);
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [descriptionDraft, setDescriptionDraft] = useState(item.description);
+  const [savingDescription, setSavingDescription] = useState(false);
+  const [editingFull, setEditingFull] = useState(false);
+  const [fullDraft, setFullDraft] = useState({
+    description: item.description,
+    amount: String(item.amount),
+    transaction_date: item.transaction_date,
+  });
+  const [savingFull, setSavingFull] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const actionsRef = useRef(null);
   const leftRef = useRef(null);
   const isOutflow = item.participant_id === null;
+  const isExtrato = variant === 'extrato';
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -164,6 +178,110 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
     refreshfinances?.();
   };
 
+  const handleOpenEditDescription = (e) => {
+    stop(e);
+    setDescriptionDraft(item.description);
+    setEditingDescription(true);
+    setExpanded(true);
+  };
+
+  const handleCancelEditDescription = () => {
+    setEditingDescription(false);
+    setDescriptionDraft(item.description);
+  };
+
+  const handleSaveDescription = async () => {
+    const trimmed = descriptionDraft.trim();
+    if (!trimmed || trimmed === item.description) {
+      setEditingDescription(false);
+      return;
+    }
+    setSavingDescription(true);
+    try {
+      await editFinances(item.id, { description: trimmed });
+      await refreshfinances?.();
+      setEditingDescription(false);
+    } finally {
+      setSavingDescription(false);
+    }
+  };
+
+  const handleOpenEditFull = (e) => {
+    stop(e);
+    setFullDraft({
+      description: item.description,
+      amount: String(item.amount),
+      transaction_date: item.transaction_date,
+    });
+    setEditingFull(true);
+    setExpanded(true);
+  };
+
+  const handleCancelEditFull = () => {
+    setEditingFull(false);
+  };
+
+  const handleSaveFull = async () => {
+    const trimmedDesc = fullDraft.description.trim();
+    const amountNumber = parseFloat(fullDraft.amount);
+    if (!trimmedDesc || Number.isNaN(amountNumber) || !fullDraft.transaction_date) {
+      return;
+    }
+    const payload = {};
+    if (trimmedDesc !== item.description) payload.description = trimmedDesc;
+    if (amountNumber !== Number(item.amount)) payload.amount = amountNumber;
+    if (fullDraft.transaction_date !== item.transaction_date) {
+      payload.transaction_date = fullDraft.transaction_date;
+    }
+    if (Object.keys(payload).length === 0) {
+      setEditingFull(false);
+      return;
+    }
+    setSavingFull(true);
+    try {
+      await editFinances(item.id, payload);
+      await refreshfinances?.();
+      setEditingFull(false);
+    } finally {
+      setSavingFull(false);
+    }
+  };
+
+  const handleOpenConfirmDelete = (e) => {
+    stop(e);
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteFinance(item.id);
+    } catch (error) {
+      console.error(error);
+      setConfirmDeleteOpen(false);
+      return;
+    }
+    setConfirmDeleteOpen(false);
+    setIsDeleting(true);
+  };
+
+  const handleAnimationEnd = (e) => {
+    if (!isDeleting) return;
+    if (e.animationName && e.animationName.includes('slideFadeDelete')) {
+      refreshfinances?.();
+    }
+  };
+
+  useEffect(() => {
+    if (!confirmDeleteOpen) return;
+    const handleClickOutside = (e) => {
+      if (actionsRef.current && !actionsRef.current.contains(e.target)) {
+        setConfirmDeleteOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [confirmDeleteOpen]);
+
   const participantColor = participant ? participantColors[participant.id] : null;
 
   const rowStyle = { '--i': index };
@@ -173,8 +291,9 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
 
   return (
     <li
-      className={`${styles.row} ${participantPickerOpen ? styles.rowActive : ''}`}
+      className={`${styles.row} ${(participantPickerOpen || confirmDeleteOpen) ? styles.rowActive : ''} ${isDeleting ? styles.deleting : ''}`}
       style={rowStyle}
+      onAnimationEnd={handleAnimationEnd}
     >
       <div
         type="button"
@@ -252,7 +371,7 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
             {formatAmount(item.amount)}
           </span>
 
-          <div className={styles.actions} onClick={stop}>
+          <div className={styles.actions} onClick={stop} ref={actionsRef}>
             <button
               type="button"
               className={`${styles.iconBtn} ${isReviewed ? styles.iconBtnActive : ''}`}
@@ -274,24 +393,42 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
               type="button"
               className={styles.iconBtn}
               aria-label="Editar"
-              onClick={(e) => {
-                stop(e);
-                console.log('edit', item.id);
-              }}
+              onClick={isExtrato ? handleOpenEditDescription : handleOpenEditFull}
             >
               <EditIcon />
             </button>
-            <button
-              type="button"
-              className={`${styles.iconBtn} ${styles.danger}`}
-              aria-label="Excluir"
-              onClick={(e) => {
-                stop(e);
-                console.log('delete', item.id);
-              }}
-            >
-              <TrashIcon />
-            </button>
+            {!isExtrato && (
+              <button
+                type="button"
+                className={`${styles.iconBtn} ${styles.danger}`}
+                aria-label="Excluir"
+                onClick={handleOpenConfirmDelete}
+              >
+                <TrashIcon />
+              </button>
+            )}
+
+            {confirmDeleteOpen && (
+              <div className={styles.confirmPop} role="dialog" aria-label="Confirmar exclusão">
+                <span className={styles.confirmText}>Excluir?</span>
+                <div className={styles.confirmActions}>
+                  <button
+                    type="button"
+                    className={`${styles.confirmBtn} ${styles.confirm}`}
+                    onClick={handleConfirmDelete}
+                  >
+                    Sim
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.confirmBtn} ${styles.danger}`}
+                    onClick={() => setConfirmDeleteOpen(false)}
+                  >
+                    Não
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -302,6 +439,96 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
         role="region"
       >
         <div className={styles.panelInner}>
+          {!isExtrato && editingFull && (
+            <div className={styles.editForm} onClick={stop}>
+              <div className={styles.editGrid}>
+                <label className={styles.editLabel}>
+                  Descrição
+                  <input
+                    type="text"
+                    className={styles.editInput}
+                    value={fullDraft.description}
+                    onChange={(e) => setFullDraft((d) => ({ ...d, description: e.target.value }))}
+                    disabled={savingFull}
+                    autoFocus
+                  />
+                </label>
+                <label className={styles.editLabel}>
+                  Valor
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    className={styles.editInput}
+                    value={fullDraft.amount}
+                    onChange={(e) => setFullDraft((d) => ({ ...d, amount: e.target.value }))}
+                    disabled={savingFull}
+                  />
+                </label>
+                <label className={styles.editLabel}>
+                  Data
+                  <input
+                    type="date"
+                    className={styles.editInput}
+                    value={fullDraft.transaction_date}
+                    onChange={(e) => setFullDraft((d) => ({ ...d, transaction_date: e.target.value }))}
+                    disabled={savingFull}
+                  />
+                </label>
+              </div>
+              <div className={styles.editActions}>
+                <button
+                  type="button"
+                  className={styles.editCancel}
+                  onClick={handleCancelEditFull}
+                  disabled={savingFull}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className={styles.editSave}
+                  onClick={handleSaveFull}
+                  disabled={savingFull}
+                >
+                  {savingFull ? 'Salvando…' : 'Salvar'}
+                </button>
+              </div>
+            </div>
+          )}
+          {isExtrato && editingDescription && (
+            <div className={styles.editForm} onClick={stop}>
+              <label className={styles.editLabel}>
+                Descrição
+                <input
+                  type="text"
+                  className={styles.editInput}
+                  value={descriptionDraft}
+                  onChange={(e) => setDescriptionDraft(e.target.value)}
+                  disabled={savingDescription}
+                  autoFocus
+                />
+              </label>
+              <div className={styles.editActions}>
+                <button
+                  type="button"
+                  className={styles.editCancel}
+                  onClick={handleCancelEditDescription}
+                  disabled={savingDescription}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className={styles.editSave}
+                  onClick={handleSaveDescription}
+                  disabled={savingDescription}
+                >
+                  {savingDescription ? 'Salvando…' : 'Salvar'}
+                </button>
+              </div>
+            </div>
+          )}
           <dl className={styles.details}>
             <div className={styles.detail}>
               <dt>Fonte</dt>
