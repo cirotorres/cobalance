@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from db.database import get_session
 from schemas.user import TokenResponse
 from models.user import User
-from core.security import verify_password, create_acess_token, get_current_user
+from core.security import verify_password, create_acess_token, get_current_user, create_refresh_token
 
 router = APIRouter()
 
@@ -38,10 +38,37 @@ def login(login_data: LoginRequest, db: Session = Depends(get_session)):
         }
         )
 
+
+    refresh_token = create_refresh_token(
+        {
+            'sub': user.email,
+            'id': user.id,
+        }
+        )
+    
+
     return {
         "access_token": acess_token,
+        "refresh_token": refresh_token,
         "token_type": "Bearer"
     }
+
+
+# @router.post("/refresh")
+# def refresh_login(refresh_token: str, db: Session = Depends(get_session)):
+
+#     new_acess_token = create_acess_token(
+#         {
+#             'sub': user.email,
+#             'id': user.id,
+#         }
+#     )
+
+#     return {
+#         "acess_token": new_acess_token,
+#         "token_type": "Bearer"
+#     }
+
 
 @router.get("/me")
 def profile(

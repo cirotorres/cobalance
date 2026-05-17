@@ -30,13 +30,17 @@ function Login() {
         });
         console.log(data);
 
-        if (data.access_token) {
+        if (data.access_token && data.refresh_token) {
           localStorage.setItem(
             "token",
             data.access_token
           );
-          navigate("/home");
+          localStorage.setItem(
+            "refresh_token",
+            data.refresh_token
+          );
         }
+        navigate("/home");
 
       } catch (error) {
         console.error(error);

@@ -13,3 +13,15 @@ export const isAdmin = async () => {
     return false;
   }
 }
+
+export const refreshToken = async (refresh_token) => {
+  try {
+    const response = api.post("/auth/refresh", {refresh_token})
+    return response.data
+
+  } catch (error) {
+    console.log(error);
+    return false
+  }
+
+}
