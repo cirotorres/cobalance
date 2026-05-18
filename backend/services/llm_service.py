@@ -80,6 +80,7 @@ def interpretar_comando_financeiro(pergunta: str):
                 Se não especificar data, use esta data atual: {hoje}.
                 Se não houver parcelamento, installment_number = 1 e installment_total = 1.
                 Em parcelamentos, gere uma entrada por mês, dividindo o valor total pelo número de parcelas quando o total estiver explícito.
+                Em parcelamentos de mais de 1x, inclua nas descriptions as parcelas correspondentes. 
             '''
         },
         {

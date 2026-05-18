@@ -79,7 +79,7 @@ def financial_assistant(
             "participant_id": participant.id,
             "participant_name": participant.name,
             "total_amount": participant_total,
-            "message": f"Total de {participant.name}: {participant_total}",
+            "message": f"Total de {participant.name}: R$ {participant_total}",
         }
 
     raise HTTPException(
