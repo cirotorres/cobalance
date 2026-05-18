@@ -28,7 +28,9 @@ function BalancoTab({ participants = [], participantColors = {} }) {
 
   const groups = useMemo(() => {
     const reviewed = finances.filter(
-      (f) => f.is_reviewed && f.participant_id !== null && f.participant_id !== undefined
+      (f) => f.is_reviewed && 
+            f.participant_id !== null && 
+            f.participant_id !== undefined
     );
     return participants
       .map((p) => ({

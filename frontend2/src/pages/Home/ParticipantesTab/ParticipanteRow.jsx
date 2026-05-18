@@ -125,10 +125,10 @@ function ParticipanteRow({ participant, index, color, onChangeColor, onDelete, r
       await deleteParticipante(participant.id);
     } catch (error) {
       console.log(error);
-      return; // mantém a row, não anima
+      return;
     }
     setConfirmOpen(false);
-    setItsDeleting(true); // dispara slideFadeDelete
+    setItsDeleting(true);
   };
 
   const handleAnimationEnd = (e) => {

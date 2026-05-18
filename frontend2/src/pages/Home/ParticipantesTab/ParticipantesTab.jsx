@@ -144,7 +144,9 @@ useEffect(() => {
         </button>
       </div>
 
-      <ul className={styles.list}>
+    { participants == 0 ? (
+      <div className={styles.emptyParticipant}>Sem participantes. Clique no ícone " + " e adicione seus participantes.</div>
+    ):( <ul className={styles.list}>
         {participants.map((p, index) => (
           <ParticipanteRow
             key={p.id}
@@ -157,6 +159,7 @@ useEffect(() => {
           />
         ))}
       </ul>
+    )}
 
       {createNewRow && (
         <form onSubmit={handleAdd}>

@@ -57,11 +57,14 @@ function formatAgentReply(data) {
   }
 }
 
+
+const agentVersion = "1.0"
+
+
 function AgenteTab({ messages, setMessages, input, setInput }) {
   const [isThinking, setIsThinking] = useState(false);
 
   const listRef = useRef(null);
-  const textareaRef = useRef(null);
 
   useEffect(() => {
     if (listRef.current) {
@@ -128,7 +131,10 @@ function AgenteTab({ messages, setMessages, input, setInput }) {
   return (
     <section className={styles.section}>
       <div className={styles.head}>
-        <h2 className={styles.title}>Agente</h2>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10}}>
+          <h2 className={styles.title}>Agente</h2>
+          <span style={{color: 'grey'}}>{agentVersion}</span>
+        </div>
         <button
           type="button"
           className={styles.clearBtn}
@@ -197,7 +203,6 @@ function AgenteTab({ messages, setMessages, input, setInput }) {
 
       <form className={styles.composer} onSubmit={handleSubmit}>
         <textarea
-          ref={textareaRef}
           className={styles.input}
           placeholder="Escreva uma mensagem..."
           value={input}
