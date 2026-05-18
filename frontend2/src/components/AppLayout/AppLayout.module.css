@@ -1,0 +1,17 @@
+.layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'header header'
+    'sidebar main'
+    'footer footer';
+  background: var(--color-bg);
+}
+
+.main {
+  grid-area: main;
+  padding: 24px 32px;
+  overflow: auto;
+}

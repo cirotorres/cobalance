@@ -1,0 +1,28 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.clearBtn {
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.clearBtn:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.clearBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}

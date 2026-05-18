@@ -28,7 +28,7 @@ def import_financial_csv(file_path, db, user_id):
             description=row["title"],
             amount=float(row["amount"]),
             user_id=user_id,
-            source="CSV",
+            source="extrato",
             installment_number=inst_num,
             installment_total=inst_tot
         )
