@@ -55,7 +55,7 @@ const totalFormatado = total.toLocaleString('pt-BR', {
               }}
             >
           {dataGrafico.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
+            <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={0.7}/>
           ))}
         </Pie>
         <text

@@ -202,18 +202,22 @@ export default function ParticipantPDF({
 
         <View style={styles.participantCard}>
 
+          <Text style={styles.summaryLabel}>
+            Participante:
+          </Text>
+
           <Text style={styles.participantName}>
             {participant.name}
           </Text>
 
-          <Text style={styles.infoRow}>
+          {/* <Text style={styles.infoRow}>
             ID do participante: {participant.id}
-          </Text>
+          </Text> */}
 
-          <Text style={styles.infoRow}>
+          {/* <Text style={styles.infoRow}>
             Data de emissão:{' '}
             {new Date().toLocaleDateString('pt-BR')}
-          </Text>
+          </Text> */}
 
         </View>
 
