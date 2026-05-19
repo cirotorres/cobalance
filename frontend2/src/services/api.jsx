@@ -10,13 +10,10 @@ const api = axios.create({
 // injeta de forma automatica o header com o token (injeta Authorization)
 
 api.interceptors.request.use((config) => {
-
   const token = localStorage.getItem("token");
-
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-
   return config;
 });
 
@@ -25,17 +22,16 @@ export default api
 
 
 api.interceptors.response.use((response) => response, async (error) => {
-
     const originalRequest = error.config;
 
+    const isLoginUrl = originalRequest.url.includes('/auth/login');
+    const isRefreshUrl = originalRequest.url.includes('/auth/refresh');
+
     // verifica se foi 401
-    if (error.response?.status === 401) {
-
+    if (error.response?.status === 401 && !isLoginUrl && !isRefreshUrl) {
       try {
-
         const refresh_token =
           localStorage.getItem("refresh_token");
-
 
         const response = await axios.post(
           "http://localhost:8000/auth/refresh",

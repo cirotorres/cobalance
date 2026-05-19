@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import BalancoParticipanteCard from './BalancoParticipanteCard';
 import styles from './BalancoTab.module.css';
 import { listFinances } from '../../../services/financialService';
+import  PizzaGraph  from './PizzaGraph';
 
 function BalancoTab({ participants = [], participantColors = {} }) {
   const [finances, setFinances] = useState([]);
@@ -41,6 +42,7 @@ function BalancoTab({ participants = [], participantColors = {} }) {
   }, [finances, participants]);
 
   return (
+    
     <section className={styles.section}>
       <div className={styles.head}>
         <h2 className={styles.title}>Balanço</h2>
@@ -51,18 +53,24 @@ function BalancoTab({ participants = [], participantColors = {} }) {
           Nenhum lançamento revisado ainda. Marque o ícone ✓ em Lançamentos ou Extrato bancário para popular esta aba.
         </div>
       ) : (
-        <ul className={styles.list}>
-          {groups.map((g, i) => (
-            <BalancoParticipanteCard
-              key={g.participant.id}
-              index={i}
-              participant={g.participant}
-              color={participantColors[g.participant.id]}
-              items={g.items}
-              onToggleReview={handleToggleReview}
-            />
-          ))}
-        </ul>
+        <div style={{display: 'flex'}}>
+          <ul className={styles.list}>
+            {groups.map((g, i) => (
+              <BalancoParticipanteCard
+                key={g.participant.id}
+                index={i}
+                participant={g.participant}
+                color={participantColors[g.participant.id]}
+                items={g.items}
+                onToggleReview={handleToggleReview}
+              />
+            ))}
+          </ul>
+          <PizzaGraph
+          participantes={participants}
+          financas={groups}
+          />
+         </div>
       )}
     </section>
   );
