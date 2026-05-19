@@ -14,11 +14,11 @@ import { listFinances } from '../../services/financialService'
 
 
 const TABS = [
-  { id: 'lancamentos', label: 'Lançamentos' },
-  { id: 'extrato', label: 'Extrato bancário' },
-  { id: 'participantes', label: 'Participantes' },
-  { id: 'balanco', label: 'Balanço' },
-  { id: 'agente', label: 'Agente' },
+  { id: 'lancamentos', label: 'Lançamentos', shortLabel: 'Lanç.', icon: 'list' },
+  { id: 'extrato', label: 'Extrato bancário', shortLabel: 'Extrato', icon: 'file' },
+  { id: 'participantes', label: 'Participantes', shortLabel: 'Pessoas', icon: 'users' },
+  { id: 'balanco', label: 'Balanço', shortLabel: 'Balanço', icon: 'chart' },
+  { id: 'agente', label: 'Agente', shortLabel: 'Agente', icon: 'bot' },
 ];
 
 
