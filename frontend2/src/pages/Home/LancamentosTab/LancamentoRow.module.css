@@ -496,3 +496,49 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+@media (max-width: 767px) {
+  .summary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 12px;
+  }
+  .left {
+    gap: 10px;
+  }
+  .right {
+    gap: 10px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .desc {
+    font-size: 0.9rem;
+  }
+  .amount {
+    font-size: 0.92rem;
+  }
+  .participantPicker {
+    min-width: min(180px, 80vw);
+    max-width: 92vw;
+  }
+  .confirmPop {
+    min-width: min(140px, 70vw);
+    max-width: 92vw;
+  }
+  .details {
+    padding: 4px 12px 12px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px 16px;
+  }
+  .editForm {
+    padding: 10px 12px;
+  }
+  .editGrid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+  .iconBtn {
+    width: 30px;
+    height: 30px;
+  }
+}

@@ -208,3 +208,23 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 1.1rem;
+  }
+  .addBtn {
+    width: 36px;
+    height: 36px;
+  }
+  .createForm {
+    padding: 12px;
+  }
+  .createGrid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .emptyLanca {
+    padding: 32px 12px;
+  }
+}

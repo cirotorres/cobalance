@@ -265,3 +265,42 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 1.1rem;
+  }
+  .uploadBtn {
+    width: 36px;
+    height: 36px;
+  }
+  .empty,
+  .emptyExtrato {
+    padding: 32px 16px;
+  }
+  .emptyTitle {
+    font-size: 0.95rem;
+  }
+  .emptyText {
+    font-size: 0.85rem;
+  }
+  .monthHeader {
+    gap: 8px;
+    padding: 8px 10px;
+    flex-wrap: wrap;
+  }
+  .monthLabel {
+    font-size: 0.9rem;
+  }
+  .monthMeta {
+    font-size: 0.75rem;
+  }
+  .monthDelete {
+    width: 30px;
+    height: 30px;
+  }
+  .confirmPop {
+    min-width: min(140px, 70vw);
+    max-width: 92vw;
+  }
+}

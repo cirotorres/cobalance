@@ -254,3 +254,38 @@
   padding: 0 12px;
   font-size: 0.85rem;
 }
+
+@media (max-width: 767px) {
+  .summary {
+    gap: 10px;
+    padding: 12px 12px;
+  }
+  .left {
+    gap: 10px;
+  }
+  .right {
+    gap: 6px;
+  }
+  .name {
+    font-size: 0.9rem;
+  }
+  .iconBtn,
+  .colorBtn {
+    width: 30px;
+    height: 30px;
+  }
+  .palette {
+    grid-template-columns: repeat(4, 26px);
+    gap: 6px;
+    padding: 8px;
+    max-width: 92vw;
+  }
+  .swatch {
+    width: 26px;
+    height: 26px;
+  }
+  .confirmPop {
+    min-width: min(140px, 70vw);
+    max-width: 92vw;
+  }
+}

@@ -26,7 +26,7 @@ const totalFormatado = total.toLocaleString('pt-BR', {
 });
 
   return (
-    <ResponsiveContainer width="55%" height={300}>
+    <ResponsiveContainer width="100%" minWidth={260} height={300}>
       <PieChart label={()=>{return (<text>Ola meu amigo</text>)}}>
       <Tooltip formatter={(value) => [`R$ ${value}`]}/>
           <Pie

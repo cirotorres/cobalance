@@ -204,3 +204,30 @@
   outline: none;
   box-shadow: var(--shadow-focus);
 }
+
+@media (max-width: 767px) {
+  .header {
+    padding: 12px 12px;
+    gap: 10px;
+  }
+  .name {
+    font-size: 0.95rem;
+  }
+  .total {
+    font-size: 0.9rem;
+  }
+  .footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px 12px 14px;
+  }
+  .exportBtn {
+    justify-content: center;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  .list {
+    padding: 0 12px;
+  }
+}

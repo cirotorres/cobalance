@@ -46,3 +46,26 @@
   outline: none;
   box-shadow: var(--shadow-focus);
 }
+
+@media (max-width: 767px) {
+  .header {
+    padding: 0 12px;
+  }
+  .right {
+    gap: 8px;
+  }
+  .brand {
+    font-size: 1rem;
+  }
+  .user {
+    font-size: 0.85rem;
+    max-width: 40vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .logout {
+    font-size: 0.85rem;
+    padding: 6px 8px;
+  }
+}

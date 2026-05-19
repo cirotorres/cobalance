@@ -53,6 +53,7 @@
   left: 0;
   z-index: 30;
   min-width: 100%;
+  max-width: 92vw;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -63,6 +64,16 @@
   gap: 2px;
   max-height: 300px;
   overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  .trigger {
+    padding: 7px 10px;
+    font-size: 0.83rem;
+  }
+  .popover {
+    max-height: 60vh;
+  }
 }
 
 .option {

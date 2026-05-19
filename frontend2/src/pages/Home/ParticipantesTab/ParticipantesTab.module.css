@@ -64,3 +64,17 @@
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
 }
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 1.1rem;
+  }
+  .addBtn {
+    width: 36px;
+    height: 36px;
+  }
+  .emptyParticipant {
+    padding: 32px 12px;
+    font-size: 0.88rem;
+  }
+}

@@ -1,6 +1,7 @@
 .calendar {
   padding: 10px;
-  min-width: 260px;
+  min-width: min(260px, 88vw);
+  max-width: 92vw;
   gap: 8px;
 }
 

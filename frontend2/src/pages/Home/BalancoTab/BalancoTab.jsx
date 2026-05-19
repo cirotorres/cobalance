@@ -53,7 +53,7 @@ function BalancoTab({ participants = [], participantColors = {} }) {
           Nenhum lançamento revisado ainda. Marque o ícone ✓ em Lançamentos ou Extrato bancário para popular esta aba.
         </div>
       ) : (
-        <div style={{display: 'flex'}}>
+        <div className={styles.balancoLayout}>
           <ul className={styles.list}>
             {groups.map((g, i) => (
               <BalancoParticipanteCard
@@ -66,9 +66,9 @@ function BalancoTab({ participants = [], participantColors = {} }) {
               />
             ))}
           </ul>
-          <PizzaGraph
-          financas={groups}
-          />
+          <div className={styles.pizzaWrap}>
+            <PizzaGraph financas={groups} />
+          </div>
          </div>
       )}
     </section>
