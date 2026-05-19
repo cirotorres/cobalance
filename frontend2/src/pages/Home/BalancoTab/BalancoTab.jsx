@@ -67,7 +67,6 @@ function BalancoTab({ participants = [], participantColors = {} }) {
             ))}
           </ul>
           <PizzaGraph
-          participantes={participants}
           financas={groups}
           />
          </div>

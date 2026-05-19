@@ -18,3 +18,11 @@
   color: var(--color-text-muted);
   font-size: 0.95rem;
 }
+
+:global(.recharts-sector:focus) {
+  outline: none;
+}
+
+:global(svg:focus) {
+  outline: none;
+}

@@ -1,59 +1,84 @@
-import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
+export default function PizzaGraph({financas}) {
 
-const data = [
-  { name: 'Grupo A', value: 500 },
-  { name: 'Grupo B', value: 300 },
-  { name: 'Grupo C', value: 300 },
-  { name: 'Grupo D', value: 900 },
-];
+const dataGrafico = financas.map(grupo => {
 
-const COLORS = ['#0087fece', '#00C49F', '#FFBB28', '#b63939c5'];
-
-export default function PizzaGraph({participantes, financas}) {
-
-const participants = participantes.map(p => p.name)
-const colors_participants = participantes.map(p => p.color)
-const grupos = financas
-console.log("GROUPS:",grupos)
-console.log(colors_participants)
-console.log(participants)
-console.log(participantes)
-
-// const filtered_finances = grupos.map(f => f.items)
-// console.log(filtered_finances.map(i => i.amount))
-
-// const totalPorGrupo = grupos.map(grupo => {
-//   return grupo.items.reduce((soma, item) => soma + (item.amount || 0), 0);
-// });
-
-// console.log("Total de cada grupo:", totalPorGrupo);
-
-
-// Cria a lista de objetos formatada para o gráfico
-const dataGrafico = grupos.map(grupo => {
-  // 1. Soma os amounts dos itens deste grupo específico
   const totalAmount = grupo.items.reduce((soma, item) => soma + (item.amount || 0), 0);
   const participanteDoGrupo = grupo.participant
+  const participanteColor = grupo.participant
 
-  // 2. Retorna o objeto com a estrutura que você precisa
   return {
-    name: participanteDoGrupo.name,          // Copia o ID do grupo
-    value: totalAmount     // Define a soma como o 'value'
+    name: participanteDoGrupo.name,
+    value: totalAmount,
+    color: participanteColor.color
   };
 });
 
-console.log("Dados formatados para o gráfico:", dataGrafico);
+const total = dataGrafico.reduce(
+  (soma, item) => soma + item.value,
+  0
+);
+
+const totalFormatado = total.toLocaleString('pt-BR', {
+  style: 'currency',
+  currency: 'BRL'
+});
 
   return (
-    <ResponsiveContainer width="40%" height={250}>
-      <PieChart>
-        <Pie data={dataGrafico} dataKey="value" nameKey="name" outerRadius={90} fill="#8884d8" label>
-          {participantes.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={colors_participants[index % colors_participants.length]} />
+    <ResponsiveContainer width="55%" height={300}>
+      <PieChart label={()=>{return (<text>Ola meu amigo</text>)}}>
+      <Tooltip formatter={(value) => [`R$ ${value}`]}/>
+          <Pie
+              data={dataGrafico}
+              dataKey="value"
+              nameKey="name"
+              outerRadius={110}
+              innerRadius={60}
+              activeShape={false}
+              isAnimationActive={true}
+              animationDuration={1500}
+              label={({ name, percent, x, y }) => {
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    fill="black"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize={16}
+                    fontWeight='bold'
+                  >
+                    {name} - {(percent * 100).toFixed(0)}%
+                  </text>
+                );
+              }}
+            >
+          {dataGrafico.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
+        <text
+            x="50%"
+            y="48%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize={16}
+            fontWeight="bold"
+          >
+          {totalFormatado}
+        </text>
+
+        <text
+          x="50%"
+          y="55%"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize={12}
+          fill="gray"
+        >
+          Total
+        </text>
       </PieChart>
     </ResponsiveContainer>
   );

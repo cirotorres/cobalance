@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:8000",
+    // baseURL: "http://localhost:8000",
+    baseURL: "http://192.168.100.108:8000",
     headers: {
     "Content-Type": "application/json",
   },
@@ -20,7 +21,6 @@ api.interceptors.request.use((config) => {
 export default api
 
 
-
 api.interceptors.response.use((response) => response, async (error) => {
     const originalRequest = error.config;
 
@@ -34,7 +34,8 @@ api.interceptors.response.use((response) => response, async (error) => {
           localStorage.getItem("refresh_token");
 
         const response = await axios.post(
-          "http://localhost:8000/auth/refresh",
+          // "http://localhost:8000/auth/refresh",
+          "http://192.168.100.108:8000/auth/refresh",
           {
             refresh_token,
           }

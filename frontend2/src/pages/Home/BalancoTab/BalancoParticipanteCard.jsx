@@ -3,6 +3,9 @@ import BalancoLancamentoRow from './BalancoLancamentoRow';
 import styles from './BalancoParticipanteCard.module.css';
 import { editFinances } from '../../../services/financialService';
 
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import ParticipantPDF from '../../../components/PdfTemplate/PdfTemplate'
+
 function ChevronIcon() {
   return (
     <svg
@@ -66,15 +69,15 @@ function BalancoParticipanteCard({
     console.log('uncheck from balanco', id);
   };
 
-  const handleExport = () => {
-    // mock — futura geração de CSV/PDF pelo back
-    console.log('export balanco', {
-      participant_id: participant.id,
-      participant_name: participant.name,
-      total,
-      items,
-    });
-  };
+  // const handleExport = () => {
+  //   // mock — futura geração de CSV/PDF pelo back
+  //   console.log('export balanco', {
+  //     participant_id: participant.id,
+  //     participant_name: participant.name,
+  //     total,
+  //     items,
+  //   });
+  // };
 
   return (
     <li className={styles.card} style={{ '--i': index }}>
@@ -133,14 +136,25 @@ function BalancoParticipanteCard({
               <span className={styles.totalLabel}>Total</span>
               <span className={styles.totalValue}>{formatAmount(total)}</span>
             </div>
-            <button
-              type="button"
-              className={styles.exportBtn}
-              onClick={handleExport}
-            >
-              <DownloadIcon />
-              <span>Exportar (CSV)</span>
-            </button>
+
+          <PDFDownloadLink
+            document={
+              <ParticipantPDF
+                participant={participant}
+                total={total}
+                items={items}
+              />
+            }
+            fileName={`relatorio-${participant.name}.pdf`}
+            className={styles.exportBtn}
+          >
+            <DownloadIcon /> Exportar PDF
+            {({ loading }) =>
+              loading
+                ? 'Gerando PDF...'
+                : 'Exportar PDF'
+            }
+          </PDFDownloadLink>
           </div>
         </div>
       </div>

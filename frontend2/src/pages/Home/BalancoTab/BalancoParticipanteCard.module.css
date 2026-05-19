@@ -188,6 +188,7 @@
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--shadow-soft);
+  text-decoration: none;
 }
 
 .exportBtn:hover {
