@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import styles from './AgenteTab.module.css';
 import conexaoAgente from '../../../services/agenteService';
 import quickPrompts from './quickPrompts';
+import useVoiceInput from '../../../components/Speech/Speech'
 
 function SendIcon() {
   return (
@@ -18,6 +19,30 @@ function SendIcon() {
     >
       <line x1="22" y1="2" x2="11" y2="13" />
       <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  );
+}
+
+function MicrophoneIcon() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="9" y="2" width="6" height="12" rx="3" />
+      
+      <path d="M5 10a7 7 0 0 0 14 0" />
+      
+      <line x1="12" y1="17" x2="12" y2="22" />
+      
+      <line x1="8" y1="22" x2="16" y2="22" />
     </svg>
   );
 }
@@ -63,6 +88,8 @@ const agentVersion = "1.0"
 
 function AgenteTab({ messages, setMessages, input, setInput }) {
   const [isThinking, setIsThinking] = useState(false);
+
+  const { startListening, stopListening, isListening } = useVoiceInput(setInput);
 
   const listRef = useRef(null);
 
@@ -211,6 +238,17 @@ function AgenteTab({ messages, setMessages, input, setInput }) {
           rows={1}
           disabled={isThinking}
         />
+
+        <button
+          className={styles.sendBtn}
+          onClick={
+            isListening
+              ? stopListening
+              : startListening
+          }
+        >
+          <MicrophoneIcon />
+        </button>
         <button
           type="submit"
           className={styles.sendBtn}

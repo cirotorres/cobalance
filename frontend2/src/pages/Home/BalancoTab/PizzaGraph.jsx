@@ -1,4 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import styles from '../BalancoTab/BalancoTab.module.css'
 
 export default function PizzaGraph({financas}) {
 
@@ -58,6 +59,7 @@ const totalFormatado = total.toLocaleString('pt-BR', {
             <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={0.7}/>
           ))}
         </Pie>
+        <g className={styles.textFade}>
         <text
             x="50%"
             y="48%"
@@ -79,6 +81,7 @@ const totalFormatado = total.toLocaleString('pt-BR', {
         >
           Total
         </text>
+        </g>
       </PieChart>
     </ResponsiveContainer>
   );
