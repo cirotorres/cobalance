@@ -23,21 +23,13 @@ const TABS = [
 
 
 function Home () {
-
     const [activeTab, setActiveTab] = useState('lancamentos');
-
     const [userName, setUserName] = useState("Usuário");
-
     const [participants, setParticipants] = useState([]);
-
     const [participantColors, setParticipantColors] = useState({});
-
     const [lancamentos, setLancamentos] = useState([]);
-
     const [agentMessages, setAgentMessages] = useState([]);
-
     const [agentInput, setAgentInput] = useState('');
-
     const navigation = useNavigate()
 
     const logout = () => {

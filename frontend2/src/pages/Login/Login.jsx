@@ -84,6 +84,13 @@ function Login() {
       return true
     }
 
+
+   const onClickCreate = () => {
+    setIsSignup(true)
+    setEmail('')
+    setPassword('')
+   }
+
   return (
     <div className='screen'> 
     <div className={`card-flip ${isSignup ? "flipped" : ""}`}>
@@ -145,7 +152,7 @@ function Login() {
         </form>
          <p className="signup-text">
           Ainda não tem conta? 
-            <button className='pulsar-button' onClick={() => setIsSignup(true)}>
+            <button className='pulsar-button' onClick={() => onClickCreate()}>
                   Crie aqui!
             </button>
          </p>

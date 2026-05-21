@@ -126,7 +126,7 @@ function AgenteTab({ messages, setMessages, input, setInput }) {
       const errMsg = {
         id: `e-${Date.now()}`,
         role: 'agent',
-        content: 'Erro ao falar com o agente. Tente novamente.',
+        content: `${error.message}`,
         isError: true,
       };
       setMessages((prev) => [...prev, errMsg]);
