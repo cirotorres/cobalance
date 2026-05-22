@@ -2,20 +2,25 @@
   --color-bg: #ececee;
   --color-surface: #ffffff;
   --color-surface-alt: #f4f4f6;
-  --color-border: #d9d9de;
-
-  --color-text: #1a1a1a;
-  --color-text-muted: #6b6b73;
+  --color-primary: #1a1a1a;
+  --color-primary-hover: #333333;
+  --color-text: #1f2937;
+  --color-text-muted: #7a808c;
+  --color-border: #e5e7eb;
 
   --color-accent: #1a1a1a;
   --color-accent-hover: #333333;
   --color-accent-contrast: #ffffff;
 
   --color-danger: #8a1a1a;
+  --color-confirm: #3a8a1a;
 
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
+
+  --shadow-card: 0 10px 30px rgba(31, 41, 55, 0.08);
+  --shadow-focus: 0 0 0 4px rgba(79, 124, 255, 0.15);
 
   --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);

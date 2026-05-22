@@ -7,6 +7,16 @@
   width: 100%;
 }
 
+@media (max-width: 767px) {
+  .container {
+    gap: 12px;
+  }
+  .placeholder {
+    padding: 24px 8px;
+    font-size: 0.88rem;
+  }
+}
+
 .panel {
   display: flex;
   flex-direction: column;
@@ -17,4 +27,12 @@
   text-align: center;
   color: var(--color-text-muted);
   font-size: 0.95rem;
+}
+
+:global(.recharts-sector:focus) {
+  outline: none;
+}
+
+:global(svg:focus) {
+  outline: none;
 }

@@ -14,6 +14,11 @@
   cursor: pointer;
   position: relative;
   transition: var(--transition);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .tab:hover {
@@ -40,4 +45,53 @@
   height: 2px;
   background: var(--color-accent);
   border-radius: 2px;
+}
+
+.icon {
+  display: none;
+}
+
+.icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.labelDesktop {
+  display: inline;
+}
+
+.labelMobile {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .tabs {
+    gap: 2px;
+  }
+  .tab {
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 4px;
+    font-size: 0.72rem;
+    line-height: 1.1;
+  }
+  .icon {
+    display: inline-flex;
+  }
+  .labelDesktop {
+    display: none;
+  }
+  .labelMobile {
+    display: inline;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .active::after {
+    left: 8px;
+    right: 8px;
+  }
 }

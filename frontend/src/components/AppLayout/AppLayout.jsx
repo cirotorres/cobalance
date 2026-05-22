@@ -8,7 +8,7 @@ function AppLayout({ userName, onLogout, children }) {
   return (
     <div className={styles.layout}>
       <Header userName={userName} onLogout={onLogout} />
-      <Sidebar />
+      {/* <Sidebar /> */}
       <main className={styles.main}>{children}</main>
       <Footer />
     </div>

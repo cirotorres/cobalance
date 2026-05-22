@@ -1,0 +1,118 @@
+@keyframes fadeInCentral {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 70%;
+  min-width: 0;
+}
+
+.balancoLayout {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.pizzaWrap {
+  flex: 0 0 auto;
+  width: 45%;
+  min-width: 260px;
+}
+
+.textFade{
+  opacity: 0;
+  animation: fadeInCentral 0.4s ease-out forwards;
+  animation-delay: 1.5s;
+}
+
+@media (max-width: 1023px) {
+  .balancoLayout {
+    flex-direction: column;
+  }
+  .list {
+    width: 100%;
+  }
+  .pizzaWrap {
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 1.1rem;
+  }
+  .empty {
+    padding: 32px 12px;
+    font-size: 0.88rem;
+  }
+}
+
+.empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* .pizzaGraph {
+  width: 200px;
+  height: 200px;
+  aspect-ratio: 1; 
+  border-radius: 50%;
+  background: conic-gradient(
+    rgb(65, 53, 51) 0% 30%,
+    orange 30% 70%,
+    gold 70% 100%
+  );
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.pieChart li::after {
+  content: attr(data-percentage) "%";
+}
+
+.pieChart li {
+  --radius: 10vmin;
+  --weighing: calc(attr(data-percentage type(<number>)) / 100);
+  --percentage: calc(attr(data-percentage type(<number>)) * 1%);
+  --bg-color: attr(data-color type(<color>));
+
+  background: conic-gradient(
+   var(--bg-color) 0% var(--percentage),
+   transparent var(--percentage) 100%
+  );
+
+  width: calc(var(--radius) * 2);
+  
+  aspect-ratio: 1;
+  border-radius: 50%;
+} */

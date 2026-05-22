@@ -1,0 +1,80 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.addBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-soft);
+}
+
+.addBtn:hover {
+  background: var(--color-accent-hover);
+  transform: scale(1.05);
+}
+
+.addBtn:active {
+  transform: scale(0.98);
+}
+
+.addBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.emptyParticipant {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 1.1rem;
+  }
+  .addBtn {
+    width: 36px;
+    height: 36px;
+  }
+  .emptyParticipant {
+    padding: 32px 12px;
+    font-size: 0.88rem;
+  }
+}
