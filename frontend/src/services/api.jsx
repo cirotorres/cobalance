@@ -3,7 +3,8 @@ import axios from "axios";
 const api = axios.create({
     // baseURL: "http://localhost:8000", //Local
     // baseURL: "http://192.168.100.108:8000", // IP-CASA
-    baseURL: "http://172.19.87.9:8000", //IP - TCE
+    // baseURL: "http://172.19.87.9:8000", //IP - TCE
+    baseURL: "https://cobalance-dd35.onrender.com", //Deploy-RENDER
     headers: {
     "Content-Type": "application/json",
   },
@@ -37,7 +38,8 @@ api.interceptors.response.use((response) => response, async (error) => {
         const response = await axios.post(
           // "http://localhost:8000/auth/refresh",
           // "http://192.168.100.108:8000/auth/refresh",
-          "http://172.19.87.9:8000/auth/refresh",
+          // "http://172.19.87.9:8000/auth/refresh",
+          "https://cobalance-dd35.onrender.com",
           {
             refresh_token,
           }
