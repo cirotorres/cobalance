@@ -39,7 +39,7 @@ api.interceptors.response.use((response) => response, async (error) => {
           // "http://localhost:8000/auth/refresh",
           // "http://192.168.100.108:8000/auth/refresh",
           // "http://172.19.87.9:8000/auth/refresh",
-          "https://cobalance-dd35.onrender.com",
+          "https://cobalance-dd35.onrender.com/auth/refresh",
           {
             refresh_token,
           }
