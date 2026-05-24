@@ -115,19 +115,25 @@ function LancamentosTab({ participantColors = {} }) {
   const [loading, setLoading] = useState(true);
 
 
-  const fetchFinances = async () =>{
-    try{
-        const data = await listFinances();
+const fetchFinances = async () => {
+  try {
+    setLoading(true);
 
-        const data_filt = data.filter(
-          (finance) => MANUAL_SOURCES.includes(finance.source)
-        );
+    const data = await listFinances();
 
-        setFinances(data_filt);
-    } catch (error) {
-        console.error(error)
-    };
-}
+    const data_filt = data.filter(
+      (finance) => MANUAL_SOURCES.includes(finance.source)
+    );
+
+    setFinances(data_filt);
+
+  } catch (error) {
+    console.error(error);
+
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect( () => {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchFinances();
@@ -136,14 +142,11 @@ function LancamentosTab({ participantColors = {} }) {
   useEffect( () => {
       const fetchParticipants = async () =>{
           try{
-              setLoading(true);
               const data = await listParticipants();
               setParticipants(data);
           } catch (error) {
               console.error(error)
-          } finally {
-            setLoading(false)
-          };
+          }
       }
       fetchParticipants();
       }, [])
