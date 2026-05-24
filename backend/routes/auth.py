@@ -91,7 +91,7 @@ def profile(
     }
 
 
-@router.get("/health", methods=["GET", "HEAD"])
+@router.api_route("/health", methods=["GET", "HEAD"])
 def health():
     return {"status": "ok"}
 
