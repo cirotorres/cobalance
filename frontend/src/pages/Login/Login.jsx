@@ -8,6 +8,61 @@ import appleIcon from '../../assets/apple.svg'
 import { loginUser } from "../../services/authService";
 import api from '../../services/api';
 
+
+function IconLoading() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      style={{ opacity: 1 }}
+    >
+      <g stroke="currentColor">
+        <circle
+          cx="12"
+          cy="12"
+          r="9.5"
+          fill="none"
+          strokeLinecap="round"
+          strokeWidth="3"
+        >
+          <animate
+            attributeName="stroke-dasharray"
+            calcMode="spline"
+            dur="1.5s"
+            keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+            keyTimes="0;0.475;0.95;1"
+            repeatCount="indefinite"
+            values="0 150;42 150;42 150;42 150"
+          />
+
+          <animate
+            attributeName="stroke-dashoffset"
+            calcMode="spline"
+            dur="1.5s"
+            keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+            keyTimes="0;0.475;0.95;1"
+            repeatCount="indefinite"
+            values="0;-16;-59;-59"
+          />
+        </circle>
+
+        <animateTransform
+          attributeName="transform"
+          dur="2s"
+          repeatCount="indefinite"
+          type="rotate"
+          values="0 12 12;360 12 12"
+        />
+      </g>
+    </svg>
+  );
+}
+
+
+
+
 function Login() {
 
   const navigate = useNavigate();
@@ -20,10 +75,13 @@ function Login() {
 
   const [isSignup, setIsSignup] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const handleSubLogin = async (e) => {
     e.preventDefault();
 
     try {
+        setLoading(true)
         const data = await loginUser({
           email,
           password
@@ -40,12 +98,15 @@ function Login() {
             data.refresh_token
           );
         }
+        setLoading(false)
         navigate("/home");
 
       } catch (error) {
         console.error(error);
         alert("Usuário ou Senha incorretos.")
         return
+      } finally {
+        setLoading(false);
       }
       
     };
@@ -59,6 +120,7 @@ function Login() {
   }
 
     try {
+      setLoading(true)
       await api.post("/users/", {
         email: email,
         name: name,
@@ -71,6 +133,7 @@ function Login() {
         alert("Usuário já existente.")
         return
       }
+      setLoading(false)
       setIsSignup(false)
       alert("Usuário criado com sucesso!")
     };
@@ -146,8 +209,8 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className='button'>
-            Entrar
+          <button type="submit" className='button' disabled={loading}>
+            {loading ? <IconLoading /> : "Entrar"}
           </button>
         </form>
          <p className="signup-text">
@@ -253,8 +316,8 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className='button'>
-            Criar
+          <button type="submit" className='button' disabled={loading}>
+            { loading? <IconLoading /> : "Criar" }
           </button>
         </form>
 
@@ -265,3 +328,7 @@ function Login() {
 }
 
 export default Login;
+
+
+
+
