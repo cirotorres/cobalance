@@ -1,4 +1,4 @@
-import styles from './TabLoadinLanc.module.css';
+import styles from './TabLoadingLanc.module.css';
 
 function TabLoadingLanc() {
   return (
