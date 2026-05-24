@@ -5,6 +5,7 @@ import { listFinances, addFinance } from '../../../services/financialService'
 import { listParticipants } from '../../../services/participantService'
 import FinancesFilters from '../FinancesFilters/FinancesFilters';
 import { filterFinances, EMPTY_FILTERS } from '../FinancesFilters/filterFinances';
+import TabLoadingLanc from '../../../components/TabLoading/TabLoadingLanc';
 
 function PlusIcon() {
   return (
@@ -111,6 +112,7 @@ function LancamentosTab({ participantColors = {} }) {
 
   const [saving, setSaving] = useState(false);
 
+  const [loading, setLoading] = useState(true);
 
 
   const fetchFinances = async () =>{
@@ -134,10 +136,13 @@ function LancamentosTab({ participantColors = {} }) {
   useEffect( () => {
       const fetchParticipants = async () =>{
           try{
+              setLoading(true);
               const data = await listParticipants();
               setParticipants(data);
           } catch (error) {
               console.error(error)
+          } finally {
+            setLoading(false)
           };
       }
       fetchParticipants();
@@ -220,33 +225,38 @@ function LancamentosTab({ participantColors = {} }) {
           );
         }
         return (
-          <ul className={styles.list}>
-            { filtered == 0 ? (
-              <div className={styles.emptyLanca}>
-                Nenhum Lançamento. Clique no ícone acima e adicione um lançamento.
-              </div>
-            ) : (
-            [...filtered]
-              .sort((a, b) => {
-                if (!!a.is_reviewed !== !!b.is_reviewed) {
-                  return a.is_reviewed ? 1 : -1;
-                }
-                if (a.transaction_date !== b.transaction_date) {
-                  return a.transaction_date < b.transaction_date ? -1 : 1;
-                }
-                return a.id - b.id;
-              })
-              .map((item, index) => (
-                <LancamentoRow
-                  key={item.id}
-                  item={item}
-                  index={index}
-                  participants={participants}
-                  participantColors={participantColors}
-                  refreshfinances={fetchFinances}
-                />
-              )))}
-          </ul>
+          loading ? (
+            <TabLoadingLanc />
+          ) : filtered.length === 0 ? (
+            <div className={styles.emptyLanca}>
+              Nenhum lançamento. Clique no ícone acima e adicione um lançamento.
+            </div>
+          ) : (
+            <ul className={styles.list}>
+              {[...filtered]
+                .sort((a, b) => {
+                  if (!!a.is_reviewed !== !!b.is_reviewed) {
+                    return a.is_reviewed ? 1 : -1;
+                  }
+
+                  if (a.transaction_date !== b.transaction_date) {
+                    return a.transaction_date < b.transaction_date ? -1 : 1;
+                  }
+
+                  return a.id - b.id;
+                })
+                .map((item, index) => (
+                  <LancamentoRow
+                    key={item.id}
+                    item={item}
+                    index={index}
+                    participants={participants}
+                    participantColors={participantColors}
+                    refreshfinances={fetchFinances}
+                  />
+                ))}
+            </ul>
+          )
         );
       })()}
 
