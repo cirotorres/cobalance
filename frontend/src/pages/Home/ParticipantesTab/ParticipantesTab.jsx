@@ -66,7 +66,7 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
   const [participants, setParticipants] = useState([]);
   const [createNewRow, setCreateNewRow] = useState(false);
   const [newParticipant, setNewParticipant] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
 
 const fetchParticipants = async () => {
@@ -148,12 +148,12 @@ useEffect(() => {
       </div>
 
 {
-  participants.length === 0 ? (
+  loading ? (
+    <TabLoading />
+  ) : participants.length === 0 ? (
     <div className={styles.emptyParticipant}>
       Sem participantes. Clique no ícone " + " e adicione seus participantes.
     </div>
-  ) : loading ? (
-    <TabLoading />
   ) : (
     <ul className={styles.list}>
       {participants.map((p, index) => (
