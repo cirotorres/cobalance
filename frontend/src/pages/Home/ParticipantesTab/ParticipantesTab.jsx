@@ -3,7 +3,7 @@ import ParticipanteRow from './ParticipanteRow';
 import styles from './ParticipantesTab.module.css';
 import stylesrow from './ParticipanteRow.module.css';
 import { listParticipants, updateParticipantColor, adicionarParticipante } from '../../../services/participantService';
-
+import TabLoading from "../../../components/TabLoading/TabLoading"
 
 function PlusIcon() {
   return (
@@ -66,15 +66,18 @@ function ParticipantesTab({ participantColors = {}, setParticipantColors }) {
   const [participants, setParticipants] = useState([]);
   const [createNewRow, setCreateNewRow] = useState(false);
   const [newParticipant, setNewParticipant] = useState(null);
-
+  const [loading, setLoading] = useState(false);
 
 
 const fetchParticipants = async () => {
   try {
+    setLoading(true)
     const data = await listParticipants();
     setParticipants(data);
   } catch (error) {
     console.error(error);
+  } finally {
+    setLoading(false)
   }
 };
 
@@ -144,22 +147,29 @@ useEffect(() => {
         </button>
       </div>
 
-    { participants == 0 ? (
-      <div className={styles.emptyParticipant}>Sem participantes. Clique no ícone " + " e adicione seus participantes.</div>
-    ):( <ul className={styles.list}>
-        {participants.map((p, index) => (
-          <ParticipanteRow
-            key={p.id}
-            participant={p}
-            index={index}
-            color={participantColors[p.id]}
-            onChangeColor={handleChangeColor}
-            onDelete={handleDeleteParticipant}
-            refreshParticipants={fetchParticipants}
-          />
-        ))}
-      </ul>
-    )}
+{
+  participants.length === 0 ? (
+    <div className={styles.emptyParticipant}>
+      Sem participantes. Clique no ícone " + " e adicione seus participantes.
+    </div>
+  ) : loading ? (
+    <TabLoading />
+  ) : (
+    <ul className={styles.list}>
+      {participants.map((p, index) => (
+        <ParticipanteRow
+          key={p.id}
+          participant={p}
+          index={index}
+          color={participantColors[p.id]}
+          onChangeColor={handleChangeColor}
+          onDelete={handleDeleteParticipant}
+          refreshParticipants={fetchParticipants}
+        />
+      ))}
+    </ul>
+  )
+}
 
       {createNewRow && (
         <form onSubmit={handleAdd}>
