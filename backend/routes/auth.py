@@ -89,3 +89,8 @@ def profile(
         "email": current_user.email,
         "is_admin": current_user.is_admin
     }
+
+
+@router.get("/health")
+def health():
+    return {"status": "ok"}
