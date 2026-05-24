@@ -104,12 +104,12 @@ function Login() {
         console.error(error.response.data.detail);
         alert("Usuário já existente.")
         return
+      } finally {
+      setLoading(false)
       }
       setIsSignup(false)
       alert("Usuário criado com sucesso!")
-    } finally {
-        setLoading(false);
-      };
+    }
 
 
     const confirmPassword = () => {
