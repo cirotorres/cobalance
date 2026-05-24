@@ -91,6 +91,10 @@ def profile(
     }
 
 
-@router.get("/health")
+@router.get("/health", methods=["GET", "HEAD"])
 def health():
     return {"status": "ok"}
+
+
+
+
