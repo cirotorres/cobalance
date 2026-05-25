@@ -269,6 +269,10 @@
   box-shadow: var(--shadow-soft);
 }
 
+.sendBtnActive {
+  background-color: red;
+}
+
 .sendBtn:hover:not(:disabled) {
   background: var(--color-accent-hover);
   transform: scale(1.05);

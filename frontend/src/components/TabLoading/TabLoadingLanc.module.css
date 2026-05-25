@@ -5,7 +5,7 @@
 }
 
 .header {
-  height: 60px;
+  height: 40px;
   width: 220px;
   border-radius: 12px;
   background: #2a2a2a;
@@ -14,7 +14,7 @@
 }
 
 .row {
-  height: 50px;
+  height: 70px;
   width: 100%;
   border-radius: 14px;
   background: #2a2a2a;
