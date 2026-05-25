@@ -36,7 +36,7 @@
 }
 
 .row:hover {
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 
 .row.deleting {
@@ -68,6 +68,8 @@
 
 .summary:hover {
   background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  background-color: transparent;
 }
 
 .summary:focus-visible {
@@ -77,6 +79,8 @@
 
 .summaryOpen {
   background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  background-color: transparent;
 }
 
 .left {

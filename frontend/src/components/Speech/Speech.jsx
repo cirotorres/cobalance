@@ -21,7 +21,7 @@ export default function useVoiceInput({ setInput }) {
     recognition.continuous = true;
     recognition.interimResults = true;
 
-    recognition.onresult = (event) => {  // ✅ apenas um onresult
+    recognition.onresult = (event) => {
       let interim = "";
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
