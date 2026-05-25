@@ -69,6 +69,20 @@ function TrashIcon() {
   );
 }
 
+  function StopIcon() {
+    return (
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <rect x="4" y="4" width="16" height="16" rx="2" />
+      </svg>
+    );
+  }
+
 function formatAgentReply(data) {
   if (data == null) return '';
   if (typeof data === 'string') return data;
@@ -242,9 +256,9 @@ function AgenteTab({ messages, setMessages, input, setInput }) {
         <button
           type="button"
           className={`${styles.sendBtn} ${isListening ? styles.sendBtnActive : ""}`}
-          onClick={ isListening ? stopListening : startListening }
+          onClick={isListening ? stopListening : startListening}
         >
-          <MicrophoneIcon />
+          {isListening ? <StopIcon /> : <MicrophoneIcon />}
         </button>
         <button
           type="submit"
