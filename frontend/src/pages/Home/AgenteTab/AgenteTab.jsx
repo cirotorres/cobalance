@@ -89,7 +89,7 @@ const agentVersion = "1.0"
 function AgenteTab({ messages, setMessages, input, setInput }) {
   const [isThinking, setIsThinking] = useState(false);
 
-  const { startListening, stopListening, isListening } = useVoiceInput(setInput);
+  const { startListening, stopListening, isListening } = useVoiceInput({setInput});
 
   const listRef = useRef(null);
 
@@ -240,12 +240,9 @@ function AgenteTab({ messages, setMessages, input, setInput }) {
         />
 
         <button
-          className={styles.sendBtn}
-          onClick={
-            isListening
-              ? stopListening
-              : startListening
-          }
+          type="button"
+          className={`${styles.sendBtn} ${isListening ? styles.sendBtnActive : ""}`}
+          onClick={ isListening ? stopListening : startListening }
         >
           <MicrophoneIcon />
         </button>
