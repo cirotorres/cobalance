@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from core.config import DATABASE_URL, DATABASE_URL_LOCAL
 
 engine = create_engine(
-    DATABASE_URL_LOCAL,
+    DATABASE_URL,
     pool_pre_ping=True,
     echo=False
 )
