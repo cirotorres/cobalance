@@ -547,6 +547,10 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
               <dd>{isReviewed ? 'Sim' : 'Não'}</dd>
             </div>
             <div className={styles.detail}>
+              <dt>Data Transação</dt>
+              <dd>{formatDate(item.transaction_date)}</dd>
+            </div>
+            <div className={styles.detail}>
               <dt>Criado em</dt>
               <dd>{formatDateTime(item.created_at)}</dd>
             </div>

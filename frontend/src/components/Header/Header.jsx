@@ -4,7 +4,7 @@ import styles from './Header.module.css';
 function Header({ userName = 'Usuário', onLogout }) {
   return (
     <header className={styles.header}>
-      <div className={styles.brand}>Organizador</div>
+      <div className={styles.brand}>CoBalance</div>
 
       <div className={styles.right}>
         <span className={styles.user}>Olá, {userName}</span>

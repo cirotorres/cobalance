@@ -97,7 +97,7 @@ function formatAgentReply(data) {
 }
 
 
-const agentVersion = "1.0"
+const agentVersion = "1.1"
 
 
 function AgenteTab({ messages, setMessages, input, setInput }) {
