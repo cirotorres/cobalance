@@ -2,10 +2,10 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from core.config import DATABASE_URL
+from core.config import DATABASE_URL, DATABASE_URL_LOCAL
 
 engine = create_engine(
-    DATABASE_URL,
+    DATABASE_URL_LOCAL,
     pool_pre_ping=True,
     echo=False
 )
