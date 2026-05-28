@@ -10,9 +10,21 @@
 }
 
 .brand {
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.2px;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #1f2937;
+  letter-spacing: -1px;
+}
+
+.brand span {
+  background: linear-gradient(
+    135deg,
+    #4f8cff,
+    #7c8cff
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .right {
@@ -55,7 +67,7 @@
     gap: 8px;
   }
   .brand {
-    font-size: 1rem;
+    font-size: 1.7rem;
   }
   .user {
     font-size: 0.85rem;

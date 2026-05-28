@@ -286,7 +286,7 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
 
   const rowStyle = { '--i': index };
   if (participantColor) {
-    rowStyle.backgroundColor = hexToRgba(participantColor, 0.40);
+    rowStyle.backgroundColor = hexToRgba(participantColor, 0.45);
   }
 
   return (

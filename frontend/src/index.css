@@ -53,7 +53,23 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--color-bg);
+
+  /* background:
+  radial-gradient(circle at top left, #c8b6ff33, transparent 30%),
+  radial-gradient(circle at bottom right, #7aa2ff22, transparent 30%),
+  linear-gradient(to bottom, #f7f7fb, #ececf5); */
+
+  min-height: 100vh;
+
+  background-image: 
+      linear-gradient(
+      rgba(255, 255, 255, 0.60),
+      rgba(255, 255, 255, 0.75)
+    ),url('../src/assets/loginBg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--color-text);
 }
 
@@ -61,3 +77,4 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
