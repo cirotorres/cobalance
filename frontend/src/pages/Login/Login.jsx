@@ -132,7 +132,9 @@ function Login() {
     <div className={`card-flip ${isSignup ? "flipped" : ""}`}>
       <section className='face front'>
         <header className='header'>
-          <h1 className='title'>Entrar</h1>
+          <h1 className="title">
+            Co<span>Balance</span>
+          </h1>
           <p className='subtitle'>Acesse sua conta com</p>
         </header>
         <div className='social'>
