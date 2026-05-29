@@ -73,6 +73,19 @@ body {
   color: var(--color-text);
 }
 
+@media (max-width: 767px) {
+  body {
+    background-image:
+      url('../src/assets/mobBG.png');
+
+    /* background-attachment: scroll; */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+    
+  }
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

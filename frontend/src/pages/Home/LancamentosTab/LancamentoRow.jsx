@@ -116,6 +116,7 @@ function hexToRgba(hex, alpha) {
 }
 
 function LancamentoRow({ item, index, participants, participantColors = {}, refreshfinances, variant = 'lancamento' }) {
+  console.log("renderizou", item.id)
   const [expanded, setExpanded] = useState(false);
   const [participantPickerOpen, setParticipantPickerOpen] = useState(false);
   const [isReviewed, setIsReviewed] = useState(!!item.is_reviewed);
@@ -563,6 +564,7 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
       </div>
     </li>
   );
+
 }
 
 export default LancamentoRow;
