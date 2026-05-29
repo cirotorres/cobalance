@@ -87,10 +87,10 @@ function groupByMonth(items) {
   return [...groups.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
 }
 
-function ExtratoTab({lancamentos, participants, participantColors, refreshfinances}) {
+function ExtratoTab({lancamentos, participants, participantColors, refreshfinances, filters, setFilters}) {
   const inputRef = useRef(null);
   const [fileName, setFileName] = useState(null);
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  // const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [collapsedMonths, setCollapsedMonths] = useState({});
   const [deletingMonth, setDeletingMonth] = useState(null);
   const [confirmMonth, setConfirmMonth] = useState(null);

@@ -11,6 +11,7 @@ import styles from './Home.module.css';
 import api from '../../services/api';
 import { listParticipants } from '../../services/participantService';
 import { listFinances } from '../../services/financialService'
+import { EMPTY_FILTERS } from '../Home/FinancesFilters/filterFinances';
 
 
 const TABS = [
@@ -30,6 +31,8 @@ function Home () {
     const [lancamentos, setLancamentos] = useState([]);
     const [agentMessages, setAgentMessages] = useState([]);
     const [agentInput, setAgentInput] = useState('');
+    const [filtersLan, setFiltersLan] = useState(EMPTY_FILTERS);
+    const [filtersExt, setFiltersExt] = useState(EMPTY_FILTERS);
     const navigation = useNavigate()
 
     const logout = () => {
@@ -108,6 +111,8 @@ return (
           {activeTab === 'lancamentos' && (
             <LancamentosTab
               participantColors={participantColors}
+              filters={filtersLan}
+              setFilters={setFiltersLan}
               />
           )}
           {activeTab === 'extrato' && (
@@ -116,6 +121,8 @@ return (
               participantColors={participantColors}
               participants={participants}
               refreshfinances={fetchFinancesExtrato}
+              filters={filtersExt}
+              setFilters={setFiltersExt}
               />
           )}
           {activeTab === 'participantes' && (

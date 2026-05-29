@@ -4,7 +4,7 @@ import styles from './LancamentosTab.module.css';
 import { listFinances, addFinance } from '../../../services/financialService'
 import { listParticipants } from '../../../services/participantService'
 import FinancesFilters from '../FinancesFilters/FinancesFilters';
-import { filterFinances, EMPTY_FILTERS } from '../FinancesFilters/filterFinances';
+import { filterFinances } from '../FinancesFilters/filterFinances';
 import TabLoadingLanc from '../../../components/TabLoading/TabLoadingLanc';
 
 function PlusIcon() {
@@ -98,20 +98,14 @@ const emptyDraft = () => ({
   installments: '1',
 });
 
-function LancamentosTab({ participantColors = {} }) {
+function LancamentosTab({ participantColors = {}, filters, setFilters }) {
 
   const [participants, setParticipants] = useState([])
-
   const [finances, setFinances] = useState([]);
-
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
-
+  // const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [createOpen, setCreateOpen] = useState(false);
-
   const [draft, setDraft] = useState(emptyDraft());
-
   const [saving, setSaving] = useState(false);
-
   const [loading, setLoading] = useState(true);
 
 
@@ -375,3 +369,4 @@ const fetchFinances = async () => {
 }
 
 export default LancamentosTab;
+
