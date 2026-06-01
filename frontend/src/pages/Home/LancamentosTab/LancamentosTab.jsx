@@ -112,13 +112,10 @@ function LancamentosTab({ participantColors = {}, filters, setFilters }) {
 const fetchFinances = async () => {
   try {
     setLoading(true);
-
     const data = await listFinances();
-
     const data_filt = data.filter(
       (finance) => MANUAL_SOURCES.includes(finance.source)
     );
-
     setFinances(data_filt);
 
   } catch (error) {
@@ -128,6 +125,11 @@ const fetchFinances = async () => {
     setLoading(false);
   }
 };
+
+const addManyFinancesInState = (newFinances) => {
+  setFinances(prev => [...prev, ...newFinances]);
+};
+
   useEffect( () => {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchFinances();
@@ -158,6 +160,7 @@ const fetchFinances = async () => {
 
   const handleSubmitCreate = async (e) => {
     e.preventDefault();
+    const createdFinances = []; 
     const amountNumber = parseFloat(draft.amount);
     const installmentsTotal = Math.max(1, parseInt(draft.installments, 10) || 1);
     if (!draft.description.trim() || Number.isNaN(amountNumber) || !draft.transaction_date) {
@@ -174,13 +177,14 @@ const fetchFinances = async () => {
         installment_total: installmentsTotal,
       };
       for (let i = 0; i < installmentsTotal; i++) {
-        await addFinance({
+        const financeCreated = await addFinance({
           ...basePayload,
           transaction_date: addMonthsIso(draft.transaction_date, i),
           installment_number: i + 1,
         });
+        createdFinances.push(financeCreated);
       }
-      await fetchFinances();
+      addManyFinancesInState(createdFinances);
       setCreateOpen(false);
       setDraft(emptyDraft());
     } catch (error) {
@@ -189,6 +193,26 @@ const fetchFinances = async () => {
       setSaving(false);
     }
   };
+
+  const updateFinanceInState = (id, updates) => {
+  setFinances(prev => prev.map(finance => finance.id === id
+        ? { ...finance, ...updates}
+        : finance
+      )
+    );
+  };
+
+  const removeFinanceInState = (id) => {
+  setFinances(prev =>
+    prev.filter(
+      finance => finance.id !== id
+    )
+  );
+};
+
+const createLancamentosInState = (novoLancamento) => {
+  setParticipants( prev => [...prev,novoLancamento] )
+}
 
   return (
     <section className={styles.section}>
@@ -250,6 +274,8 @@ const fetchFinances = async () => {
                     participants={participants}
                     participantColors={participantColors}
                     refreshfinances={fetchFinances}
+                    updateFinanceInState={updateFinanceInState}
+                    removeFinanceInState={removeFinanceInState}
                   />
                 ))}
             </ul>

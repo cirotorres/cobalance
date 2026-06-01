@@ -115,7 +115,7 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function LancamentoRow({ item, index, participants, participantColors = {}, refreshfinances, variant = 'lancamento' }) {
+function LancamentoRow({ item, index, participants, participantColors = {}, refreshfinances, variant = 'lancamento', updateFinanceInState, removeFinanceInState }) {
   console.log("renderizou", item.id)
   const [expanded, setExpanded] = useState(false);
   const [participantPickerOpen, setParticipantPickerOpen] = useState(false);
@@ -167,7 +167,8 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
     await editFinances(item.id, { participant_id: p ? p.id : null });
     console.log('update lancamento participant', item.id, '->', p ? p.id : null, p?.name ?? null);
     setParticipantPickerOpen(false);
-    refreshfinances();
+    updateFinanceInState(item.id, { participant_id: p ? p.id : null })
+    // refreshfinances();
   };
 
   const handleToggleReview = async (e) => {
@@ -176,7 +177,7 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
     setIsReviewed(next);
     await editFinances(item.id, { is_reviewed: next });
     console.log('toggle reviewed', item.id, '->', next);
-    refreshfinances?.();
+    updateFinanceInState(item.id, { is_reviewed: next });
   };
 
   const handleOpenEditDescription = (e) => {
@@ -200,7 +201,7 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
     setSavingDescription(true);
     try {
       await editFinances(item.id, { description: trimmed });
-      await refreshfinances?.();
+      updateFinanceInState(item.id, { description: trimmed });
       setEditingDescription(false);
     } finally {
       setSavingDescription(false);
@@ -241,7 +242,7 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
     setSavingFull(true);
     try {
       await editFinances(item.id, payload);
-      await refreshfinances?.();
+      updateFinanceInState(item.id, payload);
       setEditingFull(false);
     } finally {
       setSavingFull(false);
@@ -268,7 +269,8 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
   const handleAnimationEnd = (e) => {
     if (!isDeleting) return;
     if (e.animationName && e.animationName.includes('slideFadeDelete')) {
-      refreshfinances?.();
+      removeFinanceInState(item.id);
+      // refreshfinances?.();
     }
   };
 

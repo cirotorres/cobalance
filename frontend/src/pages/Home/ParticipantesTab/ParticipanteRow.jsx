@@ -92,7 +92,7 @@ function XIcon() {
   );
 }
 
-function ParticipanteRow({ participant, index, color, onChangeColor, onDelete, refreshParticipants }) {
+function ParticipanteRow({ participant, index, color, onChangeColor, onDelete, refreshParticipants, updateParticipantInState }) {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const rightRef = useRef(null);
@@ -167,7 +167,8 @@ function ParticipanteRow({ participant, index, color, onChangeColor, onDelete, r
     await updateParticipant(participant.id, {name: editName})
     console.log('edit participant', participant.id, '->', editName);
     
-    refreshParticipants()
+    updateParticipantInState(participant.id, { name: editName })
+
     setEditOpen(false);
   };
 
