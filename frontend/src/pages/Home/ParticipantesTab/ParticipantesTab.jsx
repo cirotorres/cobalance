@@ -81,6 +81,16 @@ const fetchParticipants = async () => {
   }
 };
 
+const updateParticipantInState = (id, updates) => {
+  setParticipants(prev =>
+    prev.map( p => p.id === id ? { ...p, ...updates } : p )
+  )
+}
+
+const createParticipantInState = (novoParticipante) => {
+  setParticipants( prev => [...prev,novoParticipante] )
+}
+
 useEffect(() => {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   fetchParticipants();
@@ -116,8 +126,8 @@ useEffect(() => {
     e.preventDefault();
 
     try{
-      await adicionarParticipante(newParticipant)
-      await fetchParticipants();
+      const participantCreated = await adicionarParticipante(newParticipant)
+      createParticipantInState(participantCreated);
       setNewParticipant(null);
       setCreateNewRow(false);
       console.log('Participante adicionado.')
@@ -165,6 +175,7 @@ useEffect(() => {
           onChangeColor={handleChangeColor}
           onDelete={handleDeleteParticipant}
           refreshParticipants={fetchParticipants}
+          updateParticipantInState={updateParticipantInState}
         />
       ))}
     </ul>
