@@ -108,6 +108,15 @@ function ExtratoTab({lancamentos, participants, participantColors, refreshfinanc
   }, [confirmMonth]);
 
 
+  const updateFinanceInState = (id, updates) => {
+  setFinances(prev => prev.map(finance => finance.id === id
+        ? { ...finance, ...updates}
+        : finance
+      )
+    );
+  };
+
+
 const handleFile = async (e) => {
   const file = e.target.files[0];
 
