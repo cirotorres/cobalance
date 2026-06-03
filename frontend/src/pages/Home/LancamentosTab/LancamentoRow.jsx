@@ -115,7 +115,17 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function LancamentoRow({ item, index, participants, participantColors = {}, refreshfinances, variant = 'lancamento', updateFinanceInState, removeFinanceInState }) {
+function LancamentoRow({ 
+    item, 
+    index, 
+    participants, 
+    participantColors = {}, 
+    refreshfinances, 
+    variant = 'lancamento', 
+    updateFinanceInState, 
+    removeFinanceInState, 
+    updateExtratoInState 
+  }) {
   console.log("renderizou", item.id)
   const [expanded, setExpanded] = useState(false);
   const [participantPickerOpen, setParticipantPickerOpen] = useState(false);
@@ -201,7 +211,7 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
     setSavingDescription(true);
     try {
       await editFinances(item.id, { description: trimmed });
-      updateFinanceInState(item.id, { description: trimmed });
+      updateExtratoInState(item.id, { description: trimmed });
       setEditingDescription(false);
     } finally {
       setSavingDescription(false);
@@ -460,7 +470,7 @@ function LancamentoRow({ item, index, participants, participantColors = {}, refr
                   Valor
                   <input
                     type="number"
-                    step="0.01"
+                    // step="0.01"
                     min="0"
                     className={styles.editInput}
                     value={fullDraft.amount}
