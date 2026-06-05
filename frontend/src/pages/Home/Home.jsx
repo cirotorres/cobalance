@@ -94,6 +94,14 @@ function Home () {
     }
   };
 
+  const updateLancamentoInState = (id, updates) => {
+    setLancamentos(prev => prev.map(lancamento => lancamento.id === id
+          ? { ...lancamento, ...updates }
+          : lancamento
+        )
+      );
+  };
+
   useEffect(() => {
     if (activeTab === 'extrato') {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -121,6 +129,7 @@ return (
               participantColors={participantColors}
               participants={participants}
               refreshfinances={fetchFinancesExtrato}
+              updateLancamentoInState={updateLancamentoInState}
               filters={filtersExt}
               setFilters={setFiltersExt}
               />
