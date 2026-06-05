@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './ExtratoTab.module.css';
 import LancamentoRow from '../LancamentosTab/LancamentoRow';
 import FinancesFilters from '../FinancesFilters/FinancesFilters';
-import { filterFinances, EMPTY_FILTERS } from '../FinancesFilters/filterFinances';
+import { filterFinances } from '../FinancesFilters/filterFinances';
 import { uploadDocument, deleteExtratoByMonth } from '../../../services/financialService'
 
 function UploadIcon() {
@@ -87,10 +87,9 @@ function groupByMonth(items) {
   return [...groups.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1));
 }
 
-function ExtratoTab({lancamentos, participants, participantColors, refreshfinances, filters, setFilters}) {
+function ExtratoTab({lancamentos, participants, participantColors, refreshfinances, updateLancamentoInState, filters, setFilters}) {
   const inputRef = useRef(null);
-  const [fileName, setFileName] = useState(null);
-  // const [filters, setFilters] = useState(EMPTY_FILTERS);
+  // const [fileName, setFileName] = useState(null);
   const [collapsedMonths, setCollapsedMonths] = useState({});
   const [deletingMonth, setDeletingMonth] = useState(null);
   const [confirmMonth, setConfirmMonth] = useState(null);
@@ -108,21 +107,12 @@ function ExtratoTab({lancamentos, participants, participantColors, refreshfinanc
   }, [confirmMonth]);
 
 
-  const updateFinanceInState = (id, updates) => {
-  setFinances(prev => prev.map(finance => finance.id === id
-        ? { ...finance, ...updates}
-        : finance
-      )
-    );
-  };
-
-
 const handleFile = async (e) => {
   const file = e.target.files[0];
 
   if (!file) return;
   try {
-    setFileName(file.name);
+    // setFileName(file.name);
 
     await uploadDocument(file);
     await refreshfinances();
@@ -272,6 +262,8 @@ const handleFile = async (e) => {
                             participantColors={participantColors}
                             refreshfinances={refreshfinances}
                             variant="extrato"
+                            updateExtratoInState={updateLancamentoInState}
+                            updateFinanceInState={updateLancamentoInState}
                           />
                         );
                       })}

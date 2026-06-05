@@ -210,9 +210,9 @@ const addManyFinancesInState = (newFinances) => {
   );
 };
 
-const createLancamentosInState = (novoLancamento) => {
-  setParticipants( prev => [...prev,novoLancamento] )
-}
+// const createLancamentosInState = (novoLancamento) => {
+//   setParticipants( prev => [...prev,novoLancamento] )
+// }
 
   return (
     <section className={styles.section}>
