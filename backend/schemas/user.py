@@ -7,7 +7,7 @@ class UserCreate(BaseModel):
     password: str
     # confirmpassword: str
     is_admin: bool = False
-    age: int | None
+    age: int | None = None
 
 
 class UserResponse(BaseModel):
