@@ -120,13 +120,11 @@ function LancamentoRow({
     index, 
     participants, 
     participantColors = {}, 
-    refreshfinances, 
     variant = 'lancamento', 
     updateFinanceInState, 
     removeFinanceInState, 
     updateExtratoInState 
   }) {
-  console.log("renderizou", item.id)
   const [expanded, setExpanded] = useState(false);
   const [participantPickerOpen, setParticipantPickerOpen] = useState(false);
   const [isReviewed, setIsReviewed] = useState(!!item.is_reviewed);

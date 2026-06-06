@@ -34,6 +34,29 @@
   --sidebar-width-expanded: 200px;
 }
 
+/* Dark mode: sobrescreve apenas os tons brancos/claros.
+   Accent, danger, confirm e os gradientes da marca permanecem. */
+[data-theme='dark'] {
+  --color-bg: #16181c;
+  --color-surface: #1f2227;
+  --color-surface-alt: #272a30;
+  --color-text: #e6e8ec;
+  --color-text-muted: #9aa0ab;
+  --color-border: #33373e;
+
+  /* primary/accent eram quase pretos (ação sobre branco);
+     no dark clareiam para continuarem visíveis sobre superfícies escuras */
+  --color-primary: #e6e8ec;
+  --color-primary-hover: #cfd2d8;
+  --color-accent: #e6e8ec;
+  --color-accent-hover: #cfd2d8;
+  --color-accent-contrast: #1a1a1a;
+
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-focus: 0 0 0 4px rgba(230, 232, 236, 0.18);
+}
+
 *,
 *::before,
 *::after {
@@ -73,6 +96,16 @@ body {
   color: var(--color-text);
 }
 
+/* No dark mode mantém a mesma imagem, mas troca o overlay branco
+   por um escuro semitransparente (fundo levemente mais escuro). */
+[data-theme='dark'] body {
+  background-image:
+    linear-gradient(
+      rgba(0, 0, 0, 0.45),
+      rgba(0, 0, 0, 0.6)
+    ), url('../src/assets/loginBg.png');
+}
+
 @media (max-width: 767px) {
   body {
     background-image:
@@ -82,12 +115,33 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-    
+
+  }
+
+  [data-theme='dark'] body {
+    background-image:
+      linear-gradient(
+        rgba(0, 0, 0, 0.45),
+        rgba(0, 0, 0, 0.6)
+      ), url('../src/assets/mobBG.png');
   }
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* iOS Safari faz auto-zoom ao focar campos com font-size < 16px.
+   Forçar 16px nos campos focáveis no mobile evita esse zoom em
+   todas as telas (rows, edições, agente, login). Usa !important
+   porque os campos têm font-size via seletores de classe, que
+   vencem o seletor de elemento por especificidade. */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
 }
 
