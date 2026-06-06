@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, Header
 from sqlalchemy import extract
 from sqlalchemy.orm import Session
 from helpers.apply_filters import apply_filters
@@ -7,10 +7,11 @@ from services.import_csv_nu import import_financial_csv
 from schemas.financial_entries import FinancialEntryResponse, FinancialEntryCreate, FinancialEntryUpdate
 from db.database import get_session
 from core.security import get_current_user
+from core.config import X_CRON_KEY
 from models.financial_entries import FinancialEntry
 from models.user import User
 from models.participant import Participant
-
+from datetime import datetime, timedelta
 
 router = APIRouter()
 
@@ -203,6 +204,30 @@ def delete_extrato_by_month(
     db.commit()
 
     return {"deleted": deleted, "month": month}
+
+
+@router.post("/internal/cleanup")
+async def cleanup(
+    x_api_key: str = Header(),
+    db: Session = Depends(get_session)
+):
+
+    if x_api_key != X_CRON_KEY:
+        raise HTTPException(
+            status_code=401,
+            detail="Não autorizado"
+        )
+
+    six_months_ago = datetime.utcnow() - timedelta(days=180)
+
+    deleted = db.query(FinancialEntry).filter(FinancialEntry.transaction_date < six_months_ago).delete(synchronize_session=False)
+
+    db.commit()
+
+    return {
+        "deleted_rows": deleted,
+        "cutoff_date": six_months_ago.isoformat()
+    }
 
 
 @router.get("/{financial_id}", response_model=FinancialEntryResponse)
