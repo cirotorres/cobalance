@@ -19,6 +19,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
+    "http://192.168.100.106:5173",
     "https://cobalance-ctorr.vercel.app",
 ]
 
