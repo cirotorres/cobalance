@@ -29,3 +29,5 @@ LLM_BASE_URL = os.getenv("LLM_BASE_URL")
 
 VITE_API_URL = os.getenv("VITE_API_URL")
 
+X_CRON_KEY = os.getenv("X_CRON_KEY")
+
