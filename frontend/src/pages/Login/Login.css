@@ -34,7 +34,7 @@
 .title {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #1f2937;
+  color: var(--color-text);
   letter-spacing: -1px;
 }
 
@@ -87,11 +87,11 @@
 }
 
 .input::placeholder {
-  color: #b0b6c1;
+  color: var(--color-text-muted);
 }
 
 .input:hover {
-  border-color: #cbd5e1;
+  border-color: var(--color-text-muted);
 }
 
 .input:focus,
@@ -272,7 +272,7 @@
 .pulsar-button {
   padding: 3px 10px;
   background-color: transparent;
-  color: black;
+  color: var(--color-text);
   border: none;
   border-radius: 5px;
   cursor: pointer;
