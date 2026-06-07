@@ -1,6 +1,6 @@
 .scroll-top-button {
   position: fixed;
-  right: 50%;
+  left: 50%;
   top: 24px;
 
   width: 48px;
@@ -13,15 +13,15 @@
   justify-content: center;
   align-items: center;
 
-    background: rgba(131, 38, 152, 0.408);
+  background: rgba(131, 38, 152, 0.408);
 
-    backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 
-    border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.12);
 
-    box-shadow:
-    0 4px 12px rgba(0,0,0,0.15),
-    inset 0 1px 1px rgba(255,255,255,0.15);
+  box-shadow:
+  0 4px 12px rgba(0,0,0,0.15),
+  inset 0 1px 1px rgba(255,255,255,0.15);
   
   color: white;
 
@@ -30,7 +30,7 @@
   opacity: 0;
   visibility: hidden;
 
-  transform: translateY(20px);
+  transform: translateX(-50%) translateY(20px);
 
   transition:
     opacity 0.25s ease,
@@ -43,10 +43,10 @@
 .scroll-top-button.visible {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
 }
 
 .scroll-top-button:hover {
-  transform: translateY(-3px);
+  transform: translateX(-50%) translateY(-3px);
 }
 
