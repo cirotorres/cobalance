@@ -15,8 +15,8 @@
             saved === 'light' || saved === 'dark'
               ? saved
               : window.matchMedia('(prefers-color-scheme: light)').matches
-              ? 'dark'
-              : 'light';
+              ? 'light'
+              : 'dark';
           document.documentElement.setAttribute('data-theme', theme);
         } catch (e) {}
       })();

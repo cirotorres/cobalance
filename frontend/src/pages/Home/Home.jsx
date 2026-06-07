@@ -12,6 +12,7 @@ import api from '../../services/api';
 import { listParticipants } from '../../services/participantService';
 import { listFinances } from '../../services/financialService'
 import { EMPTY_FILTERS } from '../Home/FinancesFilters/filterFinances';
+import ScrollTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
 
 
 const TABS = [
@@ -157,7 +158,9 @@ return (
           )}
         </div>
       </div>
+      <ScrollTopButton/>
     </AppLayout>
+    
     )
 
 }

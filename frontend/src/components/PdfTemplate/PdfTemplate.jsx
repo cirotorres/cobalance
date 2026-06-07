@@ -154,6 +154,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  columnParcela: {
+    width: '25%',
+    textAlign: 'right',
+    fontWeight: 'bold',
+  },
+
   /* FOOTER */
 
   footer: {
@@ -271,6 +277,10 @@ export default function ParticipantPDF({
               Descrição
             </Text>
 
+            <Text style={styles.columnParcela}>
+              Parcela
+            </Text>
+
             <Text style={styles.columnAmount}>
               Valor
             </Text>
@@ -293,6 +303,11 @@ export default function ParticipantPDF({
               <Text style={styles.columnDescription}>
                 {item.description}
               </Text>
+
+              <Text style={styles.columnParcela}>
+                {item.installment_total != 1 && 
+                `${item.installment_number} / ${item.installment_total}` }
+              </Text>               
 
               <Text style={styles.columnAmount}>
                 {item.amount.toLocaleString('pt-BR', {
