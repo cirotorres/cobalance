@@ -34,11 +34,20 @@ function formatDate(iso) {
 }
 
 function BalancoLancamentoRow({ item, onUncheck }) {
+  const hasInstallments = Number(item.installment_total) > 1;
+
   return (
     <li className={styles.row}>
       <div className={styles.meta}>
         <span className={styles.desc}>{item.description}</span>
-        <span className={styles.date}>{formatDate(item.transaction_date)}</span>
+        <div className={styles.details}>
+          <span className={styles.date}>{formatDate(item.transaction_date)}</span>
+          {hasInstallments && (
+            <span className={styles.installment}>
+              Parcela {item.installment_number} de {item.installment_total}
+            </span>
+          )}
+        </div>
       </div>
       <span className={styles.amount}>{formatAmount(item.amount)}</span>
       <button

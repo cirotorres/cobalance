@@ -26,10 +26,34 @@
   white-space: nowrap;
 }
 
-.date {
+.details {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-top: 2px;
+}
+
+.date,
+.installment {
   font-size: 0.75rem;
   color: var(--color-text-muted);
-  margin-top: 2px;
+}
+
+.installment {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.installment::before {
+  content: '';
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .amount {
