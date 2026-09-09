@@ -55,6 +55,72 @@
   gap: 10px;
 }
 
+.bulkArea {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bulkActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.bulkCount {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.bulkButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.bulkBtn {
+  padding: 7px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.bulkBtn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+.bulkBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.bulkBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bulkMessage {
+  margin: 0 4px;
+  color: var(--color-confirm);
+  font-size: 0.78rem;
+}
+
+.bulkError {
+  color: var(--color-danger);
+}
+
 .empty {
   padding: 32px 16px;
   text-align: center;
@@ -226,5 +292,16 @@
   }
   .emptyLanca {
     padding: 32px 12px;
+  }
+  .bulkActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .bulkButtons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .bulkBtn {
+    padding: 8px;
   }
 }

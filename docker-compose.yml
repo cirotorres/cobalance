@@ -1,4 +1,4 @@
-name: proj_financa
+name: cobalance-proj
 
 services:
 
@@ -6,7 +6,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: backend_financa
+    container_name: backend_cobalance
     env_file:
       - .env
     ports:
@@ -32,7 +32,7 @@ services:
 
   postgres:
     image: postgres:15-alpine
-    container_name: postgres_financa
+    container_name: postgres_cobalance
     env_file:
       - .env
     ports:

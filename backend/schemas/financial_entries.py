@@ -38,5 +38,9 @@ class FinancialEntryUpdate(BaseModel):
     source: Optional[str] = None
     is_reviewed: Optional[bool] = None
 
+class FinancialEntriesReviewUpdate(BaseModel):
+    ids: list[int]
+    is_reviewed: bool
+
 class FinancialEntryAICreate(BaseModel):
     text: str

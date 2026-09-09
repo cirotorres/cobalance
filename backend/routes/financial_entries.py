@@ -4,7 +4,12 @@ from sqlalchemy import extract
 from sqlalchemy.orm import Session
 from helpers.apply_filters import apply_filters
 from services.import_csv_nu import import_financial_csv
-from schemas.financial_entries import FinancialEntryResponse, FinancialEntryCreate, FinancialEntryUpdate
+from schemas.financial_entries import (
+    FinancialEntryResponse,
+    FinancialEntryCreate,
+    FinancialEntryUpdate,
+    FinancialEntriesReviewUpdate,
+)
 from db.database import get_session
 from core.security import get_current_user
 from core.config import X_CRON_KEY
@@ -204,6 +209,35 @@ def delete_extrato_by_month(
     db.commit()
 
     return {"deleted": deleted, "month": month}
+
+
+@router.patch("/review-status")
+def update_financial_entries_review_status(
+    review_data: FinancialEntriesReviewUpdate,
+    db: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    requested_ids = list(dict.fromkeys(review_data.ids))
+    if not requested_ids:
+        return {"updated": 0, "updated_ids": [], "is_reviewed": review_data.is_reviewed}
+
+    entries = db.query(FinancialEntry).filter(
+        FinancialEntry.user_id == current_user.id,
+        FinancialEntry.id.in_(requested_ids),
+    ).all()
+
+    updated_ids = []
+    for entry in entries:
+        entry.is_reviewed = review_data.is_reviewed
+        updated_ids.append(entry.id)
+
+    db.commit()
+
+    return {
+        "updated": len(updated_ids),
+        "updated_ids": updated_ids,
+        "is_reviewed": review_data.is_reviewed,
+    }
 
 
 @router.post("/internal/cleanup")
