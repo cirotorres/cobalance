@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import LancamentoRow from './LancamentoRow';
 import styles from './LancamentosTab.module.css';
-import { listFinances, addFinance } from '../../../services/financialService'
+import { listFinances, addFinance, editFinancesReviewStatus } from '../../../services/financialService'
 import { listParticipants } from '../../../services/participantService'
 import FinancesFilters from '../FinancesFilters/FinancesFilters';
 import { filterFinances } from '../FinancesFilters/filterFinances';
@@ -107,6 +107,8 @@ function LancamentosTab({ participantColors = {}, filters, setFilters }) {
   const [draft, setDraft] = useState(emptyDraft());
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [bulkSaving, setBulkSaving] = useState(false);
+  const [bulkMessage, setBulkMessage] = useState(null);
 
 
 const fetchFinances = async () => {
@@ -129,6 +131,37 @@ const fetchFinances = async () => {
 const addManyFinancesInState = (newFinances) => {
   setFinances(prev => [...prev, ...newFinances]);
 };
+
+  const filteredFinances = filterFinances(finances, filters);
+
+  const handleBulkReview = async (isReviewed) => {
+    const targetIds = filteredFinances
+      .filter((finance) => !!finance.is_reviewed !== isReviewed)
+      .map((finance) => finance.id);
+
+    if (targetIds.length === 0) return;
+
+    setBulkSaving(true);
+    setBulkMessage(null);
+    try {
+      const result = await editFinancesReviewStatus(targetIds, isReviewed);
+      const updatedIds = new Set(result.updated_ids);
+      setFinances((prev) => prev.map((finance) =>
+        updatedIds.has(finance.id)
+          ? { ...finance, is_reviewed: isReviewed }
+          : finance
+      ));
+      setBulkMessage({
+        type: 'success',
+        text: `${result.updated} ${result.updated === 1 ? 'lançamento atualizado' : 'lançamentos atualizados'}.`,
+      });
+    } catch (error) {
+      console.error(error);
+      setBulkMessage({ type: 'error', text: 'Não foi possível atualizar os lançamentos.' });
+    } finally {
+      setBulkSaving(false);
+    }
+  };
 
   useEffect( () => {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -236,8 +269,44 @@ const addManyFinancesInState = (newFinances) => {
         onChange={setFilters}
       />
 
+      {filteredFinances.length > 0 && (
+        <div className={styles.bulkArea}>
+          <div className={styles.bulkActions} aria-label="Ações para os lançamentos exibidos">
+            <span className={styles.bulkCount}>
+              {filteredFinances.length} {filteredFinances.length === 1 ? 'item exibido' : 'itens exibidos'}
+            </span>
+            <div className={styles.bulkButtons}>
+              <button
+                type="button"
+                className={styles.bulkBtn}
+                onClick={() => handleBulkReview(true)}
+                disabled={bulkSaving || filteredFinances.every((finance) => finance.is_reviewed)}
+              >
+                {bulkSaving ? 'Atualizando...' : 'Marcar todos'}
+              </button>
+              <button
+                type="button"
+                className={styles.bulkBtn}
+                onClick={() => handleBulkReview(false)}
+                disabled={bulkSaving || filteredFinances.every((finance) => !finance.is_reviewed)}
+              >
+                {bulkSaving ? 'Atualizando...' : 'Desmarcar todos'}
+              </button>
+            </div>
+          </div>
+          {bulkMessage && (
+            <p
+              className={`${styles.bulkMessage} ${bulkMessage.type === 'error' ? styles.bulkError : ''}`}
+              role={bulkMessage.type === 'error' ? 'alert' : 'status'}
+            >
+              {bulkMessage.text}
+            </p>
+          )}
+        </div>
+      )}
+
       {(() => {
-        const filtered = filterFinances(finances, filters);
+        const filtered = filteredFinances;
         if (finances.length > 0 && filtered.length === 0) {
           return (
             <div className={styles.empty}>
@@ -395,4 +464,3 @@ const addManyFinancesInState = (newFinances) => {
 }
 
 export default LancamentosTab;
-

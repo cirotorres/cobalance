@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import BalancoParticipanteCard from './BalancoParticipanteCard';
 import styles from './BalancoTab.module.css';
-import { listFinances } from '../../../services/financialService';
+import { listFinances, editFinancesReviewStatus } from '../../../services/financialService';
 import  PizzaGraph  from './PizzaGraph';
 
 function BalancoTab({ participants = [], participantColors = {} }) {
   const [finances, setFinances] = useState([]);
+  const [bulkScope, setBulkScope] = useState(null);
+  const [bulkError, setBulkError] = useState('');
 
   useEffect(() => {
     const fetchFinances = async () => {
@@ -20,11 +22,31 @@ function BalancoTab({ participants = [], participantColors = {} }) {
   }, []);
 
   const handleToggleReview = (id, next) => {
-    // atualização local — back-end ainda não conectado para este flow
     setFinances((prev) =>
       prev.map((f) => (f.id === id ? { ...f, is_reviewed: next } : f))
     );
-    console.log('toggle reviewed', id, '->', next);
+  };
+
+  const handleClear = async (items, scope) => {
+    const ids = items.map((item) => item.id);
+    if (ids.length === 0 || bulkScope) return;
+
+    setBulkScope(scope);
+    setBulkError('');
+    try {
+      const result = await editFinancesReviewStatus(ids, false);
+      const updatedIds = new Set(result.updated_ids);
+      setFinances((prev) => prev.map((finance) =>
+        updatedIds.has(finance.id)
+          ? { ...finance, is_reviewed: false }
+          : finance
+      ));
+    } catch (error) {
+      console.error(error);
+      setBulkError('Não foi possível limpar o balanço. Tente novamente.');
+    } finally {
+      setBulkScope(null);
+    }
   };
 
   const groups = useMemo(() => {
@@ -46,7 +68,20 @@ function BalancoTab({ participants = [], participantColors = {} }) {
     <section className={styles.section}>
       <div className={styles.head}>
         <h2 className={styles.title}>Balanço</h2>
+        {groups.length > 0 && (
+          <button
+            type="button"
+            className={styles.clearBtn}
+            onClick={() => handleClear(groups.flatMap((group) => group.items), 'all')}
+            disabled={bulkScope !== null}
+            title="Desmarcar todos os itens sem excluí-los"
+          >
+            {bulkScope === 'all' ? 'Limpando...' : 'Limpar balanço'}
+          </button>
+        )}
       </div>
+
+      {bulkError && <p className={styles.error} role="alert">{bulkError}</p>}
 
       {groups.length === 0 ? (
         <div className={styles.empty}>
@@ -63,6 +98,9 @@ function BalancoTab({ participants = [], participantColors = {} }) {
                 color={participantColors[g.participant.id]}
                 items={g.items}
                 onToggleReview={handleToggleReview}
+                onClear={() => handleClear(g.items, `participant-${g.participant.id}`)}
+                clearing={bulkScope === 'all' || bulkScope === `participant-${g.participant.id}`}
+                bulkDisabled={bulkScope !== null}
               />
             ))}
           </ul>

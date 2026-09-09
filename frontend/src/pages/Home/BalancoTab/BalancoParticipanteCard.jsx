@@ -58,6 +58,9 @@ function BalancoParticipanteCard({
   color,
   items,
   onToggleReview,
+  onClear,
+  clearing,
+  bulkDisabled,
 }) {
   const [expanded, setExpanded] = useState(false);
   const total = items.reduce((sum, it) => sum + Number(it.amount || 0), 0);
@@ -137,24 +140,36 @@ function BalancoParticipanteCard({
               <span className={styles.totalValue}>{formatAmount(total)}</span>
             </div>
 
-          <PDFDownloadLink
-            document={
-              <ParticipantPDF
-                participant={participant}
-                total={total}
-                items={items}
-              />
-            }
-            fileName={`relatorio-${participant.name}.pdf`}
-            className={styles.exportBtn}
-          >
-            <DownloadIcon /> Exportar PDF
-            {({ loading }) =>
-              loading
-                ? 'Gerando PDF...'
-                : 'Exportar PDF'
-            }
-          </PDFDownloadLink>
+            <div className={styles.footerActions}>
+              <button
+                type="button"
+                className={styles.clearBtn}
+                onClick={onClear}
+                disabled={bulkDisabled}
+                title="Desmarcar os itens deste participante sem excluí-los"
+              >
+                {clearing ? 'Limpando...' : 'Limpar participante'}
+              </button>
+
+              <PDFDownloadLink
+                document={
+                  <ParticipantPDF
+                    participant={participant}
+                    total={total}
+                    items={items}
+                  />
+                }
+                fileName={`relatorio-${participant.name}.pdf`}
+                className={styles.exportBtn}
+              >
+                <DownloadIcon /> Exportar PDF
+                {({ loading }) =>
+                  loading
+                    ? 'Gerando PDF...'
+                    : 'Exportar PDF'
+                }
+              </PDFDownloadLink>
+            </div>
           </div>
         </div>
       </div>

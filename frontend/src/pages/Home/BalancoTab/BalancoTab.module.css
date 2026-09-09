@@ -22,6 +22,41 @@
   color: var(--color-text);
 }
 
+.clearBtn {
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.clearBtn:hover:not(:disabled) {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-accent-contrast);
+}
+
+.clearBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.clearBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: -8px 0 0;
+  color: var(--color-danger);
+  font-size: 0.82rem;
+}
+
 .list {
   list-style: none;
   margin: 0;
@@ -70,6 +105,10 @@
   .empty {
     padding: 32px 12px;
     font-size: 0.88rem;
+  }
+  .clearBtn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
   }
 }
 

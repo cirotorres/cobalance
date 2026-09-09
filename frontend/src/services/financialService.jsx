@@ -11,6 +11,14 @@ export const editFinances = async (id, finance) => {
   return response.data
 };
 
+export const editFinancesReviewStatus = async (ids, isReviewed) => {
+  const response = await api.patch('/financial/review-status', {
+    ids,
+    is_reviewed: isReviewed,
+  });
+  return response.data;
+};
+
 export const addFinance = async (payload) => {
   const response = await api.post("/financial/", payload);
   return response.data;
