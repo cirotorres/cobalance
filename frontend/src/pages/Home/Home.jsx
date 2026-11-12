@@ -13,6 +13,8 @@ import { listParticipants } from '../../services/participantService';
 import { listFinances } from '../../services/financialService'
 import { EMPTY_FILTERS } from '../Home/FinancesFilters/filterFinances';
 import ScrollTopButton from "../../components/ScrollToTopButton/ScrollToTopButton";
+import ModuleSwitcher from "../../components/ModuleSwitcher/ModuleSwitcher"; // SPEC003
+import { clearActiveModuleSelection } from '../../components/ModuleSwitcher/moduleSession';
 
 
 const TABS = [
@@ -27,6 +29,7 @@ const TABS = [
 function Home () {
     const [activeTab, setActiveTab] = useState('lancamentos');
     const [userName, setUserName] = useState("Usuário");
+    const [userEmail, setUserEmail] = useState(null);
     const [participants, setParticipants] = useState([]);
     const [participantColors, setParticipantColors] = useState({});
     const [lancamentos, setLancamentos] = useState([]);
@@ -37,6 +40,7 @@ function Home () {
     const navigation = useNavigate()
 
     const logout = () => {
+    clearActiveModuleSelection(userEmail)
     localStorage.removeItem("token")
     localStorage.removeItem("refresh_token")
     navigation("/")
@@ -46,6 +50,7 @@ function Home () {
         const fetchUserName = async () => {
     try {
       const response = await api.get("/auth/me");
+      setUserEmail(response.data.email);
       const name = response.data.email.split("@")[0]
       const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
       setUserName(formattedName);
@@ -112,7 +117,7 @@ function Home () {
 
 return (
 
-    <AppLayout userName={userName} onLogout={logout}>
+    <AppLayout userName={userName} onLogout={logout} headerExtra={<ModuleSwitcher current="cards" redirectToDefault />}>
       <div className={styles.container}>
         <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
 

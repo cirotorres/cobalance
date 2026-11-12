@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 # from fastapi.security import OAuth2PasswordRequestForm
-from core.config import ALGORITHM, SECRET_KEY
 from schemas.user import LoginRequest, RefreshTokenRequest
 from sqlalchemy.orm import Session
 from db.database import get_session
 from schemas.user import TokenResponse
 from models.user import User
-from core.security import verify_password, create_access_token, get_current_user, create_refresh_token
-import jwt
+from core.security import (
+    verify_password, create_access_token, get_current_user, create_refresh_token,
+    authenticated_user_for_token,
+)
 
 router = APIRouter()
 
@@ -58,27 +59,10 @@ def login(login_data: LoginRequest, db: Session = Depends(get_session)):
 
 @router.post("/refresh")
 def refresh_login(refresh_data: RefreshTokenRequest, db: Session = Depends(get_session)):
-    
-    payload = jwt.decode(
-        refresh_data.refresh_token,
-        SECRET_KEY,
-        algorithms=[ALGORITHM]
-    )
-
-    user_id = payload.get("id")
-
-    user = db.query(User).filter( User.id == user_id).first()
-
-    new_access_token = create_access_token(
-        {
-            'sub': user.email,
-            'id': user.id,
-        }
-    )
-
-    return {
-        "access_token": new_access_token,
-    }
+    # O refresh só autoriza novo access, nunca a si mesmo ou acesso a recursos.
+    user = authenticated_user_for_token(refresh_data.refresh_token, "refresh", db)
+    new_access_token = create_access_token({"sub": user.email, "id": user.id})
+    return {"access_token": new_access_token}
 
 
 @router.get("/me")

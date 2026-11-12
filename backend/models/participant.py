@@ -1,12 +1,12 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import BigInteger, Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 from db.database import Base
 
 class Participant(Base):
     __tablename__ = "participants"
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(BigInteger, ForeignKey("users.id", name="fk_participant_user", ondelete="CASCADE"), nullable=False)
     name = Column(String, nullable=False)
     color = Column(String(7), nullable=True)
 

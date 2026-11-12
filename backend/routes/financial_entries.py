@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, Header
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, Header, Response
 from sqlalchemy import extract
 from sqlalchemy.orm import Session
 from helpers.apply_filters import apply_filters
@@ -17,8 +17,32 @@ from models.financial_entries import FinancialEntry
 from models.user import User
 from models.participant import Participant
 from datetime import datetime, timedelta
+from uuid import UUID
+
+from schemas.installment_purchases import InstallmentPurchaseCreate, InstallmentPurchaseResponse
+from services.installment_purchases import register_purchase
 
 router = APIRouter()
+
+
+@router.post("/installments", response_model=InstallmentPurchaseResponse, status_code=201)
+def create_installment_purchase(
+    data: InstallmentPurchaseCreate,
+    response: Response,
+    idempotency_key: str = Header(..., alias="Idempotency-Key"),
+    db: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        parsed = UUID(idempotency_key)
+        if parsed.version != 4:
+            raise ValueError("UUID não é v4")
+    except (ValueError, TypeError, AttributeError):
+        raise HTTPException(status_code=422, detail="Idempotency-Key deve ser UUID-v4")
+
+    snapshot, status = register_purchase(db, current_user.id, str(parsed), data)
+    response.status_code = status
+    return snapshot
 
 
 @router.post("/", response_model=FinancialEntryResponse)
@@ -265,8 +289,11 @@ async def cleanup(
 
 
 @router.get("/{financial_id}", response_model=FinancialEntryResponse)
-def get_financial_entry(financial_id: int, db: Session = Depends(get_session)):
-    get_fin = db.query(FinancialEntry).filter(FinancialEntry.id == financial_id).first()
+def get_financial_entry(financial_id: int, db: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    get_fin = db.query(FinancialEntry).filter(
+        FinancialEntry.id == financial_id,
+        FinancialEntry.user_id == current_user.id,
+    ).first()
     if not get_fin:
         raise HTTPException(status_code=404, detail="Não tem isso ai no banco.")
     return get_fin

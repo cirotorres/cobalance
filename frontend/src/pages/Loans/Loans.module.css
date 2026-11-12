@@ -1,0 +1,57 @@
+.page { padding: 16px 24px 32px; max-width: 1200px; margin: 0 auto; }
+.envBadge { margin: 0 0 8px; color: var(--color-text-muted); font-size: 0.85rem; }
+.content { margin-top: 16px; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.split { display: grid; grid-template-columns: minmax(220px, 300px) 1fr; gap: 16px; align-items: start; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.card, .dialog { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-soft); color: var(--color-text); }
+.dialog { border-style: dashed; margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.card h2, .card h3, .dialog h3 { margin: 0 0 10px; }
+.formGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; align-items: end; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--color-text-muted); }
+.field input, .field select, .field textarea, .inline input { padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-surface-alt); color: var(--color-text); font: inherit; }
+.inline { display: inline-flex; flex-direction: column; gap: 2px; font-size: 0.8rem; margin: 4px 8px 4px 0; }
+.inlineForm { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-top: 8px; }
+.checkbox { display: flex; gap: 8px; align-items: center; }
+.card button, .dialog button { padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--color-border); background: var(--color-surface-alt); color: var(--color-text); cursor: pointer; font-weight: 600; }
+.card button:focus-visible, .dialog button:focus-visible, .field input:focus-visible, .field select:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.card button:disabled, .dialog button:disabled { opacity: 0.5; cursor: not-allowed; }
+.card .primary, .dialog .primary { background: var(--color-accent); color: var(--color-accent-contrast); border-color: var(--color-accent); }
+.card .danger { background: var(--color-danger); color: #fff; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 8px 0; display: block; overflow-x: auto; }
+.table th, .table td { padding: 6px 8px; border-bottom: 1px solid var(--color-border); text-align: left; white-space: nowrap; }
+.list { list-style: none; padding: 0; margin: 8px 0; display: flex; flex-direction: column; gap: 6px; }
+.row { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center; }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.stat { display: flex; flex-direction: column; padding: 10px; background: var(--color-surface-alt); border-radius: var(--radius-sm); }
+.statLabel { font-size: 0.75rem; color: var(--color-text-muted); }
+.badge, .badgeMuted, .badgeDanger { font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; margin-left: 6px; font-weight: 700; }
+.badge { background: var(--color-confirm); color: #fff; }
+.badgeMuted { background: var(--color-surface-alt); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+.badgeDanger { background: var(--color-danger); color: #fff; }
+.muted { color: var(--color-text-muted); font-size: 0.85rem; }
+.error { color: var(--color-danger); }
+.ok { color: var(--color-confirm); }
+.warn { background: #fff7e0; color: #6b4e00; padding: 8px 10px; border-radius: var(--radius-sm); }
+.qrRow { display: flex; gap: 16px; flex-wrap: wrap; align-items: start; }
+.qrRow img { background: #fff; padding: 6px; border-radius: var(--radius-sm); }
+.qrRow .field { flex: 1; min-width: 220px; }
+.link, .linkActive { background: none !important; border: 0 !important; padding: 4px 0 !important; text-align: left; color: var(--color-text) !important; }
+.linkActive { text-decoration: underline; font-weight: 800; }
+.sticky { position: sticky; bottom: 8px; z-index: 2; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 800px) {
+  .page { padding: 12px; }
+  .split, .grid2 { grid-template-columns: 1fr; }
+}
+/* evita que tabela/inputs alarguem o grid além do viewport */
+.split > *, .grid2 > *, .stack > *, .card, .dialog { min-width: 0; }
+.formGrid { grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); }
+.card h3 { overflow-wrap: anywhere; }
+.field textarea { width: 100%; box-sizing: border-box; }
+@media (max-width: 800px) { .split, .grid2 { grid-template-columns: minmax(0, 1fr); } }
+/* mobile: barra fixa sobrepunha cards e capturava o toque (achado E2E mobile) */
+@media (max-width: 800px) { .sticky { position: static; } }
+/* filhos do stack nunca encolhem abaixo do conteúdo (evitava sobreposição de cards no mobile) */
+.stack > * { flex-shrink: 0; }

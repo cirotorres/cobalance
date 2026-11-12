@@ -1,11 +1,11 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import BigInteger, Column, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from db.database import Base
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     email = Column(String, unique=True)
     name = Column(String, nullable=False)
     password_hash = Column(String, nullable=False)

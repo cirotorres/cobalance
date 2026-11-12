@@ -31,3 +31,18 @@
     padding: 20px 20px;
   }
 }
+
+/* SPEC003: somente empréstimos usa área de scroll restrita à altura disponível.
+   Evita o <main> crescer além do viewport e interceptar toques mobile. */
+.containedScroll {
+  height: 100dvh;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+.containedScroll .main {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}

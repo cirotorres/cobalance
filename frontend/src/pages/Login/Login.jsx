@@ -59,8 +59,7 @@ function Login() {
           email,
           password
         });
-        console.log(data);
-
+        // Tokens JWT não devem aparecer em logs de navegador.
         if (data.access_token && data.refresh_token) {
           localStorage.setItem(
             "token",

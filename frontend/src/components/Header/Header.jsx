@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './Header.module.css';
 import useTheme from '../../hooks/useTheme';
 
-function Header({ userName = 'Usuário', onLogout }) {
+function Header({ userName = 'Usuário', onLogout, extra = null }) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
 
@@ -10,6 +10,7 @@ function Header({ userName = 'Usuário', onLogout }) {
     <header className={styles.header}>
       <h4 className={styles.brand}>Co<span>Balance</span></h4>
       <div className={styles.right}>
+        {extra}
         <button
           type="button"
           role="switch"

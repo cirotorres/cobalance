@@ -16,12 +16,10 @@ export const isAdmin = async () => {
 
 export const refreshToken = async (refresh_token) => {
   try {
-    const response = api.post("/auth/refresh", {refresh_token})
-    return response.data
-
-  } catch (error) {
-    console.log(error);
-    return false
+    const response = await api.post("/auth/refresh", { refresh_token });
+    return response.data;
+  } catch {
+    // Nunca imprimir erro Axios contendo payload/credenciais de refresh.
+    return false;
   }
-
-}
+};

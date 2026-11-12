@@ -6,6 +6,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import { Account } from '../pages/AuthNeon/account';
 import { Auth } from '../pages/AuthNeon/auth';
 import { HomeNeon } from "../pages/AuthNeon/homeNeon";
+import LoansHome from "../pages/Loans/LoansHome"; // SPEC003
 
 function AppRoutes() {
   return (
@@ -16,6 +17,11 @@ function AppRoutes() {
          <Route path="/home" element={
           <ProtectedRoute>
           <Home />
+          </ProtectedRoute>
+          } />
+          <Route path="/loans/*" element={
+          <ProtectedRoute>
+          <LoansHome />
           </ProtectedRoute>
           } />
           <Route path="/neon" element={<HomeNeon/>} />

@@ -5,17 +5,21 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from core.config import DATABASE_URL, DATABASE_URL_LOCAL
+import os
+from core.config import DATABASE_URL_LOCAL
 
 from db.database import Base
 from models.user import User
 from models.participant import Participant
+from models.financial_entries import FinancialEntry
+from models.financial_entry_batches import FinancialEntryBatch
+import models.loans  # noqa: F401  SPEC003
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", DATABASE_URL_LOCAL)
+config.set_main_option("sqlalchemy.url", os.environ.get("COBALANCE_ALEMBIC_DATABASE_URL") or os.environ.get("COBALANCE_ALEMBIC_URL") or DATABASE_URL_LOCAL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
