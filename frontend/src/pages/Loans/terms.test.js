@@ -10,7 +10,7 @@ describe('buildTerms', () => {
       frequency: 'monthly', start_on: '2026-11-09', first_due_on: '2026-12-10' });
   });
   it('datas manuais e intervalo', () => {
-    expect(buildTerms({ ...base, frequency: 'manual', manual_dates: '2026-12-01, 2027-01-05' }).terms.manual_dates).toEqual(['2026-12-01', '2027-01-05']);
+    expect(buildTerms({ ...base, frequency: 'manual', manual_dates: ['01/12/2026', '05/01/2027', '10/02/2027'] }).terms.manual_dates).toEqual(['2026-12-01', '2027-01-05', '2027-02-10']);
     expect(buildTerms({ ...base, frequency: 'every_x_days', interval_days: '10' }).terms.interval_days).toBe(10);
   });
   it('rejeita valor inválido', () => {

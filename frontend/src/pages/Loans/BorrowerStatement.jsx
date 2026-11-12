@@ -7,16 +7,18 @@ import FundForm from './FundForm';
 import styles from './Loans.module.css';
 
 const STATUS = { PENDING: 'Em aberto', PARTIALLY_PAID: 'Parcial', PAID: 'Paga' };
-const LOAN_STATUS = { DRAFT: 'Rascunho', ACTIVE: 'Ativo', SETTLED: 'Quitado', CANCELLED: 'Cancelado' };
+const LOAN_STATUS = { DRAFT: 'Rascunho', ACTIVE: 'Ativo', SETTLED: 'Quitado', CANCELLED: 'Cancelado', VOIDED: 'Anulado' };
 const INACTIVE_NOTE = {
   DRAFT: 'Rascunho — envio não confirmado. Parcelas previstas, sem dívida exigível.',
   CANCELLED: 'Cancelado — sem obrigação financeira. Cronograma original apenas para consulta.',
   SETTLED: 'Quitado — sem saldo pendente.',
+  VOIDED: 'Anulado — registro desconsiderado. Histórico apenas para consulta, sem obrigação financeira.',
 };
 const INACTIVE_INSTALLMENT_STATUS = {
   DRAFT: 'Prevista — sem envio',
   CANCELLED: 'Cancelada — sem obrigação',
   SETTLED: 'Quitada',
+  VOIDED: 'Anulada — sem obrigação',
 };
 
 function AdjustmentForm({ inst, onDone }) {
@@ -109,6 +111,12 @@ function BorrowerStatement({ borrowerId }) {
   const [amortFor, setAmortFor] = useState(null);
   const [reverseFor, setReverseFor] = useState(null);
   const [cancelFor, setCancelFor] = useState(null);
+  const [voidFor, setVoidFor] = useState(null);
+  const [voidReason, setVoidReason] = useState('');
+  const [voidConfirmed, setVoidConfirmed] = useState(false);
+  const [voidNoTransfer, setVoidNoTransfer] = useState(false);
+  const [showVoided, setShowVoided] = useState(false);
+  const voidKey = useRef(newIdempotencyKey('void'));
   const [adjustmentReverseFor, setAdjustmentReverseFor] = useState(null);
   const [busyAction, setBusyAction] = useState(false);
   const [historyBusy, setHistoryBusy] = useState(null);
@@ -120,11 +128,11 @@ function BorrowerStatement({ borrowerId }) {
   const load = useCallback(() => setTick((t) => t + 1), []);
   useEffect(() => {
     let alive = true;
-    Promise.all([loansApi.statement(borrowerId), loansApi.listPix()])
+    Promise.all([loansApi.statement(borrowerId, showVoided), loansApi.listPix()])
       .then(([s, p]) => { if (alive) { setData(s); setPix(p); } })
       .catch((e) => alive && setError(apiError(e)));
     return () => { alive = false; };
-  }, [borrowerId, tick]);
+  }, [borrowerId, showVoided, tick]);
 
   if (!data) return error ? <p role="alert" className={styles.error}>{error}</p> : <p>Carregando ficha…</p>;
 
@@ -138,6 +146,27 @@ function BorrowerStatement({ borrowerId }) {
       await loansApi.cancel(cancelFor);
       setCancelFor(null);
       await after('Rascunho cancelado.');
+    } catch (err) { setError(apiError(err)); }
+    finally { setBusyAction(false); }
+  };
+
+  const openVoid = (loanId) => {
+    voidKey.current = newIdempotencyKey('void');
+    setVoidFor(loanId); setVoidReason(''); setVoidConfirmed(false); setVoidNoTransfer(false); setError('');
+  };
+  const submitVoid = async (loan) => {
+    if (busyAction || !voidConfirmed || voidReason.trim().length < 3 ||
+        (loan.status === 'ACTIVE' && !voidNoTransfer)) return;
+    setBusyAction(true); setError('');
+    try {
+      await loansApi.void(loan.id, {
+        reason: voidReason.trim(),
+        idempotency_key: voidKey.current,
+        confirm_no_transfer: loan.status === 'ACTIVE' ? voidNoTransfer : false,
+      });
+      setVoidFor(null);
+      setShowVoided(false);
+      await after('Registro anulado sem pagamento ou devolução.');
     } catch (err) { setError(apiError(err)); }
     finally { setBusyAction(false); }
   };
@@ -177,6 +206,8 @@ function BorrowerStatement({ borrowerId }) {
           <div className={styles.stat}><span className={styles.statLabel}>Em atraso</span><strong data-testid="overdue-total">{formatBRL(data.overdue_total)}</strong></div>
         </div>
       </div>
+      <button type="button" className={styles.zeroRate} aria-pressed={showVoided}
+        onClick={() => setShowVoided((v) => !v)}>{showVoided ? 'Ocultar anulados' : 'Mostrar anulados'}</button>
       {msg && <p role="status" className={styles.ok}>{msg}</p>}
       {error && <p role="alert" className={styles.error}>{error}</p>}
 
@@ -188,6 +219,37 @@ function BorrowerStatement({ borrowerId }) {
             {l.current_version > 1 && <span className={styles.badgeMuted}> cronograma v{l.current_version}</span>}
           </h3>
           {INACTIVE_NOTE[l.status] && <p className={styles.muted} role="note">{INACTIVE_NOTE[l.status]}</p>}
+          {l.status === 'VOIDED' && (
+            <p className={styles.muted}>Anulado em {l.voided_at ? formatDate(l.voided_at.slice(0, 10)) : '—'} · Motivo: {l.void_reason}</p>
+          )}
+          {['DRAFT', 'CANCELLED', 'ACTIVE'].includes(l.status) && (
+            voidFor === l.id ? (
+              <div className={styles.dialog} role="group" aria-label={'Anular registro do empréstimo ' + l.id}>
+                <p>{data.borrower.name} · Empréstimo #{l.id} · {formatBRL(l.principal)} · {LOAN_STATUS[l.status]}</p>
+                <p role="note">Esta ação não registra pagamento nem devolução. Use somente para corrigir um cadastro por engano.</p>
+                <label className={styles.field}>Motivo da anulação
+                  <textarea value={voidReason} onChange={(e) => setVoidReason(e.target.value)} minLength={3} maxLength={300} required />
+                </label>
+                <label className={styles.checkbox}>
+                  <input type="checkbox" checked={voidConfirmed} onChange={(e) => setVoidConfirmed(e.target.checked)} />
+                  Confirmo que desejo anular este registro
+                </label>
+                {l.status === 'ACTIVE' && (
+                  <label className={styles.checkbox}>
+                    <input type="checkbox" checked={voidNoTransfer} onChange={(e) => setVoidNoTransfer(e.target.checked)} />
+                    Confirme que o dinheiro não foi realmente transferido; se foi, não use anulação
+                  </label>
+                )}
+                <div className={styles.actions}>
+                  <button type="button" className={styles.danger} disabled={busyAction || !voidConfirmed ||
+                    voidReason.trim().length < 3 || (l.status === 'ACTIVE' && !voidNoTransfer)}
+                    onClick={() => submitVoid(l)}>Confirmar anulação</button>
+                  <button type="button" disabled={busyAction} onClick={() => setVoidFor(null)}>Voltar sem anular</button>
+                </div>
+              </div>
+            ) : <button type="button" className={styles.danger} disabled={busyAction}
+                onClick={() => openVoid(l.id)}>{'Excluir empréstimo #' + l.id}</button>
+          )}
           {l.status === 'DRAFT' && (
             <>
               <FundForm loan={l} onFunded={() => after('Envio confirmado.')} />

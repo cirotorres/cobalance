@@ -2,7 +2,7 @@
 from datetime import date
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
 
 
 class Strict(BaseModel):
@@ -104,6 +104,20 @@ class ContractCreate(Terms):
     borrower_id: int
     terms_hash: Optional[str] = Field(default=None, max_length=64)
     idempotency_key: str = Field(min_length=8, max_length=80)
+
+
+class VoidRequest(Strict):
+    reason: str = Field(min_length=3, max_length=300)
+    idempotency_key: str = Field(min_length=8, max_length=80)
+    confirm_no_transfer: StrictBool
+
+    @field_validator("reason")
+    @classmethod
+    def _reason(cls, v):
+        v = v.strip()
+        if not 3 <= len(v) <= 300:
+            raise ValueError("Motivo deve ter de 3 a 300 caracteres.")
+        return v
 
 
 class FundRequest(Strict):

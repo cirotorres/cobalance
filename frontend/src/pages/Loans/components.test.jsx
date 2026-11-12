@@ -143,7 +143,7 @@ describe('Novo empréstimo', () => {
     expect(screen.queryByRole('button', { name: 'Salvar como rascunho' })).toBeNull();
     await userEvent.selectOptions(screen.getByLabelText('Tomador'), '7');
     await userEvent.type(screen.getByLabelText('Valor emprestado (R$)'), '3000');
-    await userEvent.type(screen.getByLabelText('Primeiro vencimento'), '2026-12-10');
+    await userEvent.type(screen.getByLabelText('Primeiro vencimento'), '10122026');
     await userEvent.click(screen.getByRole('button', { name: 'Simular' }));
     expect(await screen.findByTestId('sim-grand')).toHaveTextContent('R$ 3.450,00');
     expect(loansApi.createContract).not.toHaveBeenCalled();
@@ -297,7 +297,7 @@ it('SPEC003-R6: simulação Price extrema informa ajuste final sem bloquear salv
   await userEvent.selectOptions(screen.getByLabelText('Tomador'), '7');
   await userEvent.selectOptions(screen.getByLabelText('Modalidade'), 'price');
   await userEvent.type(screen.getByLabelText('Valor emprestado (R$)'), '999999.99');
-  await userEvent.type(screen.getByLabelText('Primeiro vencimento'), '2026-12-10');
+  await userEvent.type(screen.getByLabelText('Primeiro vencimento'), '10122026');
   await userEvent.click(screen.getByRole('button', { name: 'Simular' }));
   expect(await screen.findByRole('alert')).toHaveTextContent(/última prestação/);
   expect(screen.getByRole('button', { name: 'Salvar como rascunho' })).toBeEnabled();

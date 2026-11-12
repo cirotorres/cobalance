@@ -29,7 +29,7 @@ def portfolio(db, user_id, today):
     p, j, a = _open_components(insts)
     overdue = [i for i in insts if i.remaining_cents > 0 and today > i.due_on]
     upcoming = sorted([i for i in insts if i.remaining_cents > 0 and i.due_on >= today], key=lambda i: (i.due_on, i.id))[:10]
-    counts = dict(db.query(Loan.status, func.count()).filter(Loan.user_id == user_id).group_by(Loan.status).all())
+    counts = dict(db.query(Loan.status, func.count()).filter(Loan.user_id == user_id, Loan.status != "VOIDED").group_by(Loan.status).all())
     return {
         "today": today.isoformat(),
         "principal_outstanding": cents_to_str(p), "interest_future": cents_to_str(j), "adjustments_open": cents_to_str(a),
@@ -87,8 +87,11 @@ def monthly(db, user_id, month, today):
     }
 
 
-def statement(db, user_id, borrower, today):
-    loans = db.query(Loan).filter(Loan.user_id == user_id, Loan.borrower_id == borrower.id).order_by(Loan.id).all()
+def statement(db, user_id, borrower, today, include_voided=False):
+    q = db.query(Loan).filter(Loan.user_id == user_id, Loan.borrower_id == borrower.id)
+    if not include_voided:
+        q = q.filter(Loan.status != "VOIDED")
+    loans = q.order_by(Loan.id).all()
     out_loans, open_insts = [], []
     for l in loans:
         insts = db.query(LoanInstallment).filter(LoanInstallment.loan_id == l.id).all()
@@ -99,12 +102,14 @@ def statement(db, user_id, borrower, today):
                 .order_by(LoanReceipt.received_on.desc(), LoanReceipt.id.desc()).all())
     charges = (db.query(LoanCharge).filter(LoanCharge.user_id == user_id, LoanCharge.borrower_id == borrower.id)
                .order_by(LoanCharge.id.desc()).all())
-    adjustments = (db.query(LoanAdjustment, LoanInstallment)
-                   .join(LoanInstallment, LoanAdjustment.installment_id == LoanInstallment.id)
-                   .join(Loan, Loan.id == LoanAdjustment.loan_id)
-                   .filter(LoanAdjustment.user_id == user_id, Loan.user_id == user_id,
-                           Loan.borrower_id == borrower.id)
-                   .order_by(LoanAdjustment.id.desc()).all())
+    adjustment_query = (db.query(LoanAdjustment, LoanInstallment)
+                        .join(LoanInstallment, LoanAdjustment.installment_id == LoanInstallment.id)
+                        .join(Loan, Loan.id == LoanAdjustment.loan_id)
+                        .filter(LoanAdjustment.user_id == user_id, Loan.user_id == user_id,
+                                Loan.borrower_id == borrower.id))
+    if not include_voided:
+        adjustment_query = adjustment_query.filter(Loan.status != "VOIDED")
+    adjustments = adjustment_query.order_by(LoanAdjustment.id.desc()).all()
     adjustment_history = []
     for adj, inst in adjustments:
         already_reversed = adj.reversed_at is not None

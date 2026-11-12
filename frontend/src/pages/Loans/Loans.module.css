@@ -55,3 +55,32 @@
 @media (max-width: 800px) { .sticky { position: static; } }
 /* filhos do stack nunca encolhem abaixo do conteúdo (evitava sobreposição de cards no mobile) */
 .stack > * { flex-shrink: 0; }
+
+/* SPEC004: pastilhas com área de toque real, foco visível e quebra segura em 320px. */
+.borrowerChips { flex-direction: row; flex-wrap: wrap; gap: 8px; max-width: 100%; }
+.borrowerChips li { min-width: 0; max-width: 100%; }
+.borrowerPill {
+  min-height: 48px; max-width: 100%; padding: 10px 16px; border-radius: 999px;
+  background: var(--color-surface-alt); border: 2px solid var(--color-border);
+  color: var(--color-text); font: inherit; font-weight: 650; cursor: pointer;
+  text-align: left; overflow-wrap: anywhere; white-space: normal;
+}
+.borrowerPillSelected {
+  border-color: var(--color-accent); background: var(--color-surface);
+  text-decoration: underline; box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+.borrowerPill:focus-visible, .zeroRate:focus-visible {
+  outline: 3px solid var(--color-accent); outline-offset: 3px;
+}
+.zeroRate {
+  min-height: 44px; border: 2px solid var(--color-accent);
+  border-radius: 999px; padding: 8px 14px; font: inherit;
+  background: var(--color-surface-alt); color: var(--color-text); cursor: pointer;
+}
+.zeroRate[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--color-accent); text-decoration: underline; }
+.manualDates {
+  grid-column: 1 / -1; min-width: 0; border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+}
+.manualDates legend { padding: 0 8px; }

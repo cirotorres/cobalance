@@ -19,7 +19,7 @@ from models.loans import LoanBorrower, LoanPixAccount
 from models.user import User
 from schemas.loans import (
     AdjustmentCreate, BorrowerCreate, BorrowerPatch, ChargeCreate, ContractCreate, FundRequest,
-    PixCreate, PixPatch, PrepaymentPreview, ReceiptCreate, ReverseRequest, Terms,
+    PixCreate, PixPatch, PrepaymentPreview, ReceiptCreate, ReverseRequest, Terms, VoidRequest,
 )
 
 router = APIRouter()
@@ -82,10 +82,10 @@ def patch_borrower(borrower_id: int, payload: BorrowerPatch, db: Session = Depen
 
 
 @router.get("/borrowers/{borrower_id}/statement")
-def borrower_statement(borrower_id: int, db: Session = Depends(get_session), user: User = Depends(loans_owner),
+def borrower_statement(borrower_id: int, include_voided: bool = False, db: Session = Depends(get_session), user: User = Depends(loans_owner),
                        today=Depends(get_today)):
     b = owned_borrower(db, user, borrower_id)
-    return reports.statement(db, user.id, b, today)
+    return reports.statement(db, user.id, b, today, include_voided=include_voided)
 
 
 # ---------------------------------------------------------------- contas Pix
@@ -171,9 +171,9 @@ def simulate(payload: Terms, user: User = Depends(loans_owner)):
 
 
 @router.get("/contracts")
-def list_contracts(borrower_id: int | None = None, status: str | None = None, db: Session = Depends(get_session),
+def list_contracts(borrower_id: int | None = None, status: str | None = None, include_voided: bool = False, db: Session = Depends(get_session),
                    user: User = Depends(loans_owner), today=Depends(get_today)):
-    return service.list_contracts(db, user, today, borrower_id=borrower_id, status=status)
+    return service.list_contracts(db, user, today, borrower_id=borrower_id, status=status, include_voided=include_voided)
 
 
 @router.post("/contracts", status_code=201)
@@ -199,6 +199,12 @@ def fund_contract(loan_id: int, payload: FundRequest, db: Session = Depends(get_
 @router.post("/contracts/{loan_id}/cancel")
 def cancel_contract(loan_id: int, db: Session = Depends(get_session), user: User = Depends(loans_owner), today=Depends(get_today)):
     return service.cancel_contract(db, user, loan_id, today)
+
+
+@router.post("/contracts/{loan_id}/void")
+def void_contract(loan_id: int, payload: VoidRequest, db: Session = Depends(get_session),
+                  user: User = Depends(loans_owner), today=Depends(get_today)):
+    return service.void_contract(db, user, loan_id, payload, today)
 
 
 @router.post("/contracts/{loan_id}/prepayment-preview")

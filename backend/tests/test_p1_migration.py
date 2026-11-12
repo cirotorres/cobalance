@@ -20,12 +20,47 @@ NEW_TABLES = {
 LEGACY = ("users", "participants", "financial_entries")
 
 
+def _safe_migration_url():
+    """Rejeita alvo não descartável ANTES de chamar qualquer subprocesso Alembic.
+
+    Não basta a flag de pytest: env.py dá prioridade a
+    COBALANCE_ALEMBIC_DATABASE_URL, que pode ter sido herdada do shell.
+    """
+    db = urlparse(MIGR_URL)
+    source = urlparse(TEST_URL)
+    if (
+        os.environ.get("COBALANCE_TEST_DB_DISPOSABLE") != "1"
+        or db.scheme not in {"postgresql", "postgresql+psycopg2"}
+        or db.hostname not in {"127.0.0.1", "localhost"}
+        or db.path != "/cobalance_spec003_migr_test"
+        or source.hostname not in {"127.0.0.1", "localhost"}
+        or not source.path.endswith("_test")
+        or db.port != 55439
+        or source.port != 55439
+        or db.username != source.username
+        or db.password != source.password
+    ):
+        raise RuntimeError("Alembic de testes recusado: alvo não identificado como PostgreSQL descartável.")
+    return MIGR_URL
+
+
+def _run_alembic(*args):
+    """Runner compartilhado inclusive pelo downgrade esperado como falha da SPEC004."""
+    url = _safe_migration_url()
+    env = {
+        **os.environ,
+        "COBALANCE_ALEMBIC_DATABASE_URL": url,  # prioridade máxima em alembic/env.py
+        "COBALANCE_ALEMBIC_URL": url,
+        "DATABASE_URL": url,
+    }
+    return subprocess.run(["uv", "run", "alembic", *args], cwd=BACKEND, env=env,
+                          capture_output=True, text=True)
+
+
 def _alembic(*args):
-    assert urlparse(MIGR_URL).path.endswith("_migr_test")
-    env = {**os.environ, "COBALANCE_ALEMBIC_URL": MIGR_URL, "DATABASE_URL": MIGR_URL}
-    r = subprocess.run(["uv", "run", "alembic", *args], cwd=BACKEND, env=env, capture_output=True, text=True)
-    assert r.returncode == 0, r.stderr[-2000:]
-    return r
+    result = _run_alembic(*args)
+    assert result.returncode == 0, result.stderr[-2000:]
+    return result
 
 
 def create_legacy_schema(eng):
@@ -62,6 +97,7 @@ def create_legacy_schema(eng):
 
 @pytest.fixture
 def migr_engine():
+    _safe_migration_url()  # guard ANTES de DROP/CREATE DATABASE do ensaio
     admin = create_engine(TEST_URL, isolation_level="AUTOCOMMIT")
     with admin.connect() as c:
         c.execute(text("DROP DATABASE IF EXISTS cobalance_spec003_migr_test"))

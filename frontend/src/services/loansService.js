@@ -18,7 +18,7 @@ export const loansApi = {
   listBorrowers: (includeArchived = false) => d(api.get('/loans/borrowers', { params: { include_archived: includeArchived } })),
   createBorrower: (body) => d(api.post('/loans/borrowers', body)),
   patchBorrower: (id, body) => d(api.patch(`/loans/borrowers/${id}`, body)),
-  statement: (id) => d(api.get(`/loans/borrowers/${id}/statement`)),
+  statement: (id, includeVoided = false) => d(api.get(`/loans/borrowers/${id}/statement`, { params: { include_voided: includeVoided } })),
 
   listPix: () => d(api.get('/loans/pix-accounts')),
   createPix: (body) => d(api.post('/loans/pix-accounts', body)),
@@ -31,6 +31,7 @@ export const loansApi = {
   contract: (id) => d(api.get(`/loans/contracts/${id}`)),
   fund: (id, body) => d(api.post(`/loans/contracts/${id}/fund`, body)),
   cancel: (id) => d(api.post(`/loans/contracts/${id}/cancel`)),
+  void: (id, body) => d(api.post(`/loans/contracts/${id}/void`, body)),
   prepaymentPreview: (id, body) => d(api.post(`/loans/contracts/${id}/prepayment-preview`, body)),
 
   createReceipt: (body) => d(api.post('/loans/receipts', body)),

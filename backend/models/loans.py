@@ -98,6 +98,8 @@ class Loan(Base):
     first_due_on = Column(Date, nullable=False)
     terms_hash = Column(String(64), nullable=False)
     status = Column(String(10), nullable=False, default="DRAFT")
+    voided_at = Column(DateTime(timezone=True), nullable=True)
+    void_reason = Column(String(300), nullable=True)
     funded_on = Column(Date, nullable=True)
     funding_method = Column(String(20), nullable=True)
     funding_source = Column(String(120), nullable=True)
@@ -120,10 +122,12 @@ class Loan(Base):
         ),
         CheckConstraint("installment_count BETWEEN 1 AND 120", name="ck_loans_n"),
         CheckConstraint("interest_method IN ('fixed_addon','price')", name="ck_loans_method"),
-        CheckConstraint("status IN ('DRAFT','ACTIVE','SETTLED','CANCELLED')", name="ck_loans_status"),
+        CheckConstraint("status IN ('DRAFT','ACTIVE','SETTLED','CANCELLED','VOIDED')", name="ck_loans_status"),
         CheckConstraint("frequency IN ('monthly','biweekly','every_x_days','manual')", name="ck_loans_freq"),
         CheckConstraint("frequency <> 'every_x_days' OR interval_days > 0", name="ck_loans_interval"),
-        CheckConstraint("status = 'DRAFT' OR status = 'CANCELLED' OR funded_on IS NOT NULL", name="ck_loans_funded"),
+        CheckConstraint("status IN ('DRAFT','CANCELLED','VOIDED') OR funded_on IS NOT NULL", name="ck_loans_funded"),
+        CheckConstraint("status <> 'VOIDED' OR (voided_at IS NOT NULL AND "
+                        "NULLIF(BTRIM(void_reason), '') IS NOT NULL)", name="ck_loans_void_audit"),
         UniqueConstraint("id", "user_id", name="uq_loans_id_user"),
         Index("ix_loans_user_borrower", "user_id", "borrower_id"),
     )

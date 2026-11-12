@@ -38,12 +38,15 @@ def loan_out(l, installments=None, today=None, borrower_name=None):
         "frequency": l.frequency, "interval_days": l.interval_days,
         "start_on": l.start_on.isoformat(), "first_due_on": l.first_due_on.isoformat(),
         "status": l.status, "funded_on": l.funded_on.isoformat() if l.funded_on else None,
+        "voided_at": l.voided_at.isoformat() if l.voided_at else None, "void_reason": l.void_reason,
         "funding_method": l.funding_method, "current_version": l.current_version, "terms_hash": l.terms_hash,
     }
     if installments is not None:
         act = [i for i in installments if i.is_active]
         out["installments"] = [installment_out(i, today) for i in sorted(act, key=lambda x: (x.due_on, x.number))]
-        out["remaining"] = cents_to_str(sum(i.remaining_cents for i in act))
+        out["remaining"] = cents_to_str(sum(i.remaining_cents for i in act)) if l.status != "VOIDED" else "0.00"
         out["total"] = cents_to_str(sum(i.total_cents for i in act))
-        out["overdue_count"] = sum(1 for i in out["installments"] if i["overdue"])
+        out["overdue_count"] = sum(1 for i in out["installments"] if i["overdue"]) if l.status != "VOIDED" else 0
+        if l.status == "VOIDED":
+            out["installments"] = [{**i, "overdue": False} for i in out["installments"]]
     return out

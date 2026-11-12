@@ -10,6 +10,7 @@ const uniq = (p) => `${p}${Date.now().toString(36)}${(seq++).toString(36)}@e2e.t
 function todayFortaleza() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Fortaleza' }).format(new Date());
 }
+const brDate = (iso) => iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4);
 function addDays(iso, n) {
   const d = new Date(`${iso}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
@@ -80,7 +81,7 @@ test('E2E-1: habilita Empréstimos, cadastra Cleide, simula Modelo A 3000/3x/5%,
   await page.getByLabel('Valor emprestado (R$)').fill('3.000,00');
   await page.getByLabel('Taxa').fill('5');
   await page.getByLabel('Parcelas').fill('3');
-  await page.getByLabel('Primeiro vencimento').fill(addDays(TODAY, 30));
+  await page.getByLabel('Primeiro vencimento').fill(brDate(addDays(TODAY, 30)));
   await page.getByRole('button', { name: 'Simular' }).click();
   await expect(page.getByTestId('sim-total')).toHaveText(['R$ 1.150,00', 'R$ 1.150,00', 'R$ 1.150,00']);
   await expect(page.getByTestId('sim-interest')).toHaveText('R$ 450,00');
@@ -130,7 +131,7 @@ test('E2E-2: segundo empréstimo, cobrança Pix padrão com QR/CRC válido, rece
   await page.getByLabel('Tomador').selectOption({ label: 'Cleide' });
   await page.getByLabel('Valor emprestado (R$)').fill('1000');
   await page.getByLabel('Parcelas').fill('4');
-  await page.getByLabel('Primeiro vencimento').fill(addDays(TODAY, 20));
+  await page.getByLabel('Primeiro vencimento').fill(brDate(addDays(TODAY, 20)));
   await page.getByRole('button', { name: 'Simular' }).click();
   await expect(page.getByTestId('sim-total')).toHaveText(Array(4).fill('R$ 300,00'));
   await page.getByRole('button', { name: 'Salvar como rascunho' }).click();
@@ -235,7 +236,7 @@ test('E2E-4: Price — amortização (prestação e prazo), antecipação sem re
   await expect(page.getByText('Taxa efetiva mensal (%)')).toBeVisible();
   await page.getByLabel('Taxa').fill('2');
   await page.getByLabel('Parcelas').fill('6');
-  await page.getByLabel('Primeiro vencimento').fill(addDays(TODAY, 30));
+  await page.getByLabel('Primeiro vencimento').fill(brDate(addDays(TODAY, 30)));
   await page.getByRole('button', { name: 'Simular' }).click();
   const simTotals = await page.getByTestId('sim-total').allTextContents();
   expect(simTotals).toHaveLength(6);

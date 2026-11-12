@@ -70,8 +70,12 @@ def _build(terms) -> dict:
     except (MoneyError, TypeError) as e:
         raise invalid(str(e))
     try:
-        dates = sch.due_dates(terms.frequency, terms.installment_count, terms.first_due_on,
-                              interval_days=terms.interval_days, manual_dates=terms.manual_dates)
+        try:
+            dates = sch.due_dates(terms.frequency, terms.installment_count, terms.first_due_on,
+                                  interval_days=terms.interval_days, manual_dates=terms.manual_dates)
+        except (ValueError, OverflowError) as exc:
+            # Python date não suporta ano 10000: entrada inválida -> 422, nunca HTTP 500.
+            raise invalid("Vencimentos excedem o limite do calendário (ano 9999).") from exc
         if dates[0] <= terms.start_on:
             raise sch.ScheduleError("primeiro vencimento deve ser posterior à data de início")
         if terms.interest_method == "fixed_addon":
@@ -158,12 +162,14 @@ def contract_detail(db, user, loan_id, today):
     return _detail(db, _owned_loan(db, user, loan_id), today)
 
 
-def list_contracts(db, user, today, borrower_id=None, status=None):
+def list_contracts(db, user, today, borrower_id=None, status=None, include_voided=False):
     q = db.query(Loan).filter(Loan.user_id == user.id)
     if borrower_id is not None:
         q = q.filter(Loan.borrower_id == borrower_id)
     if status:
         q = q.filter(Loan.status == status)
+    if not include_voided and status != "VOIDED":
+        q = q.filter(Loan.status != "VOIDED")
     return [_detail(db, l, today) for l in q.order_by(Loan.id.desc())]
 
 
@@ -232,6 +238,56 @@ def cancel_contract(db: Session, user, loan_id, today):
     _event(db, user.id, "contract_cancelled", loan_id=loan.id)
     db.commit()
     return contract_detail(db, user, loan_id, today)
+
+
+# ------------------------------------------------------------------ anulação auditável SPEC004
+def void_contract(db: Session, user, loan_id, payload, today):
+    """Anula apenas um registro equivocado, sem simular recebimento ou devolução.
+
+    Todas as operações capazes de gerar movimentos no contrato devem obter
+    primeiro o lock do Loan (inclusive charge), para serializar a decisão.
+    """
+    loan = _owned_loan(db, user, loan_id, lock=True)
+    fingerprint = _fingerprint({"loan_id": loan_id, **payload.model_dump(exclude={"idempotency_key"})})
+    try:
+        key = _claim_key(db, user.id, "void", payload.idempotency_key, fingerprint)
+    except _Replay as replay:
+        db.rollback()
+        return contract_detail(db, user, replay.resource_id, today)
+
+    if loan.status not in ("DRAFT", "CANCELLED", "ACTIVE"):
+        raise conflict("Contrato não pode ser anulado; regularize pelo fluxo auditável apropriado.")
+    if loan.status == "ACTIVE" and payload.confirm_no_transfer is not True:
+        raise conflict("Confirme que o dinheiro não foi realmente transferido; se foi, não use anulação.")
+
+    # A ordem de bloqueio do contrato e suas parcelas acompanha os demais comandos.
+    installments = _installments(db, loan.id, lock=True)
+    installment_ids = [i.id for i in installments]
+    movements_msg = "Contrato com movimentos financeiros; regularize por fluxo auditável separado"
+    if loan.current_version != 1 or any(i.paid_cents or not i.is_active for i in installments):
+        raise conflict(movements_msg)
+    if db.query(LoanScheduleVersion.id).filter(
+        LoanScheduleVersion.loan_id == loan.id, LoanScheduleVersion.number != 1
+    ).first():
+        raise conflict(movements_msg)
+    if (db.query(LoanReceiptAllocation.id).filter(LoanReceiptAllocation.loan_id == loan.id).first()
+        or db.query(LoanAdjustment.id).filter(LoanAdjustment.loan_id == loan.id).first()
+        or db.query(LoanChargeItem.id).filter(LoanChargeItem.loan_id == loan.id).first()):
+        raise conflict(movements_msg)
+    # Não presumir que um evento financeiro desconhecido seja reversível.
+    permitted = ("contract_created", "contract_cancelled", "contract_funded")
+    if db.query(LoanEvent.id).filter(LoanEvent.loan_id == loan.id, LoanEvent.type.notin_(permitted)).first():
+        raise conflict(movements_msg)
+
+    previous_status = loan.status
+    loan.status = "VOIDED"
+    loan.voided_at = _now()
+    loan.void_reason = payload.reason
+    key.resource_id = loan.id
+    _event(db, user.id, "contract_voided", loan_id=loan.id,
+           previous_status=previous_status, reason=payload.reason, confirmed_no_transfer=payload.confirm_no_transfer)
+    db.commit()
+    return contract_detail(db, user, loan.id, today)
 
 
 # ------------------------------------------------------------------ status
@@ -617,6 +673,16 @@ def create_charge(db: Session, user, payload):
             .filter(LoanInstallment.id.in_(ids), Loan.user_id == user.id).all())
     if len(rows) != len(ids):
         raise not_found("Parcela")
+    # SPEC004: lock de todos os Loans antes de inserir cobrança. Evita disputa com
+    # anulação mesmo quando a consulta inicial viu ACTIVE antes do lock.
+    loan_ids = sorted({loan.id for _, loan in rows})
+    locked_loans = {l.id: l for l in db.query(Loan).filter(
+        Loan.id.in_(loan_ids), Loan.user_id == user.id
+    ).order_by(Loan.id).with_for_update().populate_existing().all()}
+    locked_installments = {i.id: i for i in db.query(LoanInstallment).filter(
+        LoanInstallment.id.in_(ids)
+    ).order_by(LoanInstallment.id).with_for_update().populate_existing().all()}
+    rows = [(locked_installments[inst.id], locked_loans[loan.id]) for inst, loan in rows]
     for inst, loan in rows:
         if loan.borrower_id != borrower.id:
             raise invalid("Todas as parcelas devem ser do mesmo tomador.")

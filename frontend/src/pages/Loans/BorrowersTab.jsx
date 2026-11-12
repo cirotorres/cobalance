@@ -31,10 +31,12 @@ function BorrowersTab({ focusId = null }) {
       <aside className={styles.card}>
         <h3>Tomadores</h3>
         <p className={styles.muted}>Cadastro próprio do módulo Empréstimos (independente das pessoas de Cartões).</p>
-        <ul className={styles.list} aria-label="Tomadores">
+        <ul className={`${styles.list} ${styles.borrowerChips}`} aria-label="Tomadores">
           {list.map((b) => (
             <li key={b.id}>
-              <button type="button" className={b.id === current ? styles.linkActive : styles.link} onClick={() => setCurrent(b.id)}>{b.name}</button>
+              <button type="button" aria-pressed={b.id === current}
+                className={`${styles.borrowerPill} ${b.id === current ? styles.borrowerPillSelected : ''}`}
+                onClick={() => setCurrent(b.id)}>{b.id === current && <span aria-hidden="true">✓ </span>}{b.name}</button>
             </li>
           ))}
         </ul>
